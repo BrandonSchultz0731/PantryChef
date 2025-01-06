@@ -4,6 +4,7 @@
     "slug": "PantryChef",
     "version": "1.0.0",
     "orientation": "portrait",
+    "description": "Enter your ingredients and generate a recipe with what you already have!",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
