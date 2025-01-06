@@ -1,34 +1,32 @@
-import { Text, type TextProps } from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Text, type TextProps } from "react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+  type?: "default" | "title" | "defaultSemiBold" | "subtitle" | "link";
 };
 
 export function ThemedText({
   lightColor,
   darkColor,
-  type = 'default',
-  className = '',
+  type = "default",
+  className = "",
   ...rest
 }: ThemedTextProps) {
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
 
   // Define Tailwind classes for each type
   const typeClasses = {
-    default: 'text-base leading-6',
-    defaultSemiBold: 'text-base leading-6 font-semibold',
-    title: 'text-4xl font-bold leading-8',
-    subtitle: 'text-xl font-bold',
-    link: 'text-base leading-7 text-blue-600',
+    default: "text-base leading-6",
+    defaultSemiBold: "text-base leading-6 font-semibold",
+    title: "text-4xl font-bold leading-8",
+    subtitle: "text-xl font-bold",
+    link: "text-base leading-7 text-blue-600",
   };
 
   // Combine the selected type class with any custom className
   const combinedClasses = `${typeClasses[type]} ${className}`.trim();
 
-  return (
-    <Text style={{ color }} className={combinedClasses} {...rest} />
-  );
+  return <Text style={{ color }} className={combinedClasses} {...rest} />;
 }

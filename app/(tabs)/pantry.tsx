@@ -1,109 +1,115 @@
-import { StyleSheet, Image, Platform } from 'react-native';
-
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import React, { useState } from "react";
+import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { TextInput, Button, View, Image } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import { MEASUREMENT_UNITS } from "@/constants/measurements";
+import { usePantry } from "@/hooks/usePantry";
 
 export default function Pantry() {
+  const [newItem, setNewItem] = useState<string>("");
+  const [newQuantity, setNewQuantity] = useState<string>("");
+  const [selectedUnit, setSelectedUnit] = useState<MEASUREMENT_UNITS>(
+    MEASUREMENT_UNITS.OZ,
+  );
+  const { pantry, handleInsertPantryItem } = usePantry();
+
+  const addPantryItem = async () => {
+    if (newItem.trim() === "" || newQuantity.trim() === "") {
+      alert("Please enter a valid item and quantity.");
+      return;
+    }
+    const name = newItem.trim();
+    const quantity = Number(newQuantity.trim());
+    const unit = selectedUnit;
+    if (isNaN(quantity)) {
+      alert("The value entered is not a number.");
+      return;
+    }
+    await handleInsertPantryItem(name, quantity, unit);
+    setNewItem("");
+    setNewQuantity("");
+    setSelectedUnit(MEASUREMENT_UNITS.OZ);
+  };
+
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
+      headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
       headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+        <Image
+          source={require("@/assets/images/pantry_image.jpg")}
+          className="w-full h-[300] object-contain"
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
+      }
+    >
+      <View>
+        <ThemedView>
+          <ThemedText type="title">Pantry</ThemedText>
+        </ThemedView>
+        <ThemedText className="text-base leading-6">
+          Manage your pantry by adding ingredients here.
         </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
+
+        <View className="my-5 px-4">
+          <TextInput
+            className="border border-gray-300 rounded-md p-2 mb-4 bg-white"
+            placeholder="Add a pantry item"
+            placeholderTextColor={"gray"}
+            value={newItem}
+            onChangeText={setNewItem}
+          />
+          <View className="flex-row gap-2 items-center mb-4">
+            <TextInput
+              className="flex-1 border border-gray-300 rounded-md p-2 bg-white h-12"
+              placeholder="Enter quantity"
+              placeholderTextColor={"gray"}
+              value={newQuantity}
+              onChangeText={setNewQuantity}
+            />
+            <View className="flex-1 border border-gray-300 rounded-md bg-white h-20 justify-center overflow-hidden">
+              <Picker
+                selectedValue={selectedUnit}
+                onValueChange={(itemValue) => setSelectedUnit(itemValue)}
+              >
+                <Picker.Item
+                  label={MEASUREMENT_UNITS.OZ}
+                  value={MEASUREMENT_UNITS.OZ}
+                  color="gray"
+                />
+                <Picker.Item
+                  label={MEASUREMENT_UNITS.CUPS}
+                  value={MEASUREMENT_UNITS.CUPS}
+                  color="gray"
+                />
+                <Picker.Item
+                  label={MEASUREMENT_UNITS.GRAMS}
+                  value={MEASUREMENT_UNITS.GRAMS}
+                  color="gray"
+                />
+                <Picker.Item
+                  label={MEASUREMENT_UNITS.LITERS}
+                  value={MEASUREMENT_UNITS.LITERS}
+                  color="gray"
+                />
+                <Picker.Item
+                  label={MEASUREMENT_UNITS.COUNT}
+                  value={MEASUREMENT_UNITS.COUNT}
+                  color="gray"
+                />
+              </Picker>
+            </View>
+          </View>
+          <Button title="Add Item" onPress={addPantryItem} />
+        </View>
+      </View>
+      <ThemedView>
+        {pantry.map((item) => (
+          <ThemedText key={item.id}>
+            {item.name} - {item.quantity} {item.unit}
           </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
+        ))}
+      </ThemedView>
     </ParallaxScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});
