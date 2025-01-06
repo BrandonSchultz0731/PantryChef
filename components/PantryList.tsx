@@ -29,6 +29,7 @@ export default function PantryList({
           item={item}
           isSelected={selectedEditedPantryItem?.id === item.id}
           handleSetSelectedEditedPantryItem={handleSetSelectedEditedPantryItem}
+          isEditing={Boolean(selectedEditedPantryItem)}
         />
       ))}
     </ThemedView>

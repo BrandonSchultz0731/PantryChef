@@ -2,12 +2,10 @@ import React, { useMemo, useState } from "react";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { TextInput, Button, View, Image } from "react-native";
+import { TextInput, View, Image } from "react-native";
 import { MEASUREMENT_UNITS } from "@/constants/measurements";
 import { usePantry } from "@/hooks/usePantry";
 import CustomPicker from "@/components/CustomPicker";
-import PantryCard from "@/components/PantryItemCard";
-import ConfirmationButton from "@/components/ConfirmationButton";
 import PantryList from "@/components/PantryList";
 import { PantryItem } from "@/types/pantryItem";
 import PantryButtons from "@/components/PantryButtons";
@@ -28,8 +26,15 @@ export default function Pantry() {
   } = usePantry();
 
   const sortedPantry = useMemo(() => {
-    return pantry.sort((a, b) => (a.name < b.name ? -1 : 1));
-  }, [pantry]);
+    if (!selectedEditedPantryItem) {
+      return pantry.sort((a, b) => (a.name < b.name ? -1 : 1));
+    }
+    // bring selected edited pantry item to top
+    const pantryWithoutSelectedEditedItem = pantry
+      .filter((p) => p.id !== selectedEditedPantryItem.id)
+      .sort((a, b) => (a.name < b.name ? -1 : 1));
+    return [selectedEditedPantryItem, ...pantryWithoutSelectedEditedItem];
+  }, [pantry, selectedEditedPantryItem]);
 
   const addPantryItem = async () => {
     if (newItem.trim() === "" || newQuantity.trim() === "") {

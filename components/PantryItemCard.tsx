@@ -14,12 +14,14 @@ import { useEffect } from "react";
 interface PantryCardProps {
   item: PantryItem;
   isSelected: boolean;
+  isEditing: boolean;
   handleSetSelectedEditedPantryItem: (item: PantryItem) => void;
 }
 
 export default function PantryCard({
   item,
   isSelected,
+  isEditing,
   handleSetSelectedEditedPantryItem,
 }: PantryCardProps) {
   const rotation = useSharedValue(0);
@@ -44,11 +46,17 @@ export default function PantryCard({
     transform: [{ rotateZ: `${rotation.value}deg` }],
   }));
 
+  const showCard = !isEditing
+    ? "opacity-100"
+    : isSelected
+      ? "opacity-100"
+      : "opacity-20";
+
   return (
     <Pressable onLongPress={() => handleSetSelectedEditedPantryItem(item)}>
       <Animated.View
         style={animatedStyle}
-        className="bg-slate-800 rounded-lg p-4 mb-3 shadow-md"
+        className={`bg-slate-800 rounded-lg p-4 mb-3 shadow-md ${showCard}`}
       >
         <ThemedText className="text-lg font-bold text-gray-100">
           {item.name}
