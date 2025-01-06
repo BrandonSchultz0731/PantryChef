@@ -18,11 +18,11 @@ export function ThemedText({
 
   // Define Tailwind classes for each type
   const typeClasses = {
-    default: "text-base leading-6",
-    defaultSemiBold: "text-base leading-6 font-semibold",
-    title: "text-4xl font-bold leading-8",
+    default: "text-base",
+    defaultSemiBold: "text-base font-semibold",
+    title: "text-4xl font-bold",
     subtitle: "text-xl font-bold",
-    link: "text-base leading-7 text-blue-600",
+    link: "text-base text-blue-600",
   };
 
   // Combine the selected type class with any custom className

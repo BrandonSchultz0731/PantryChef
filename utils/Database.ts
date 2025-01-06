@@ -43,10 +43,39 @@ const insertPantryItem = async (
   await db.runAsync(query, name, quantity, unit);
 };
 
+const updatePantryItem = async (
+  db: SQLite.SQLiteDatabase,
+  id: number,
+  name: string,
+  quantity: number,
+  unit: MEASUREMENT_UNITS,
+): Promise<void> => {
+  const query =
+    "UPDATE pantry SET name = ?, quantity = ?, unit = ? WHERE id = ?";
+  await db.runAsync(query, name, quantity, unit, id);
+};
+
 const getPantry = async (db: SQLite.SQLiteDatabase): Promise<PantryItem[]> => {
   const query = "SELECT * FROM pantry";
   const result: PantryItem[] = await db.getAllAsync(query);
   return result;
 };
 
-export { getDBConnection, createTable, insertPantryItem, getPantry };
+const clearPantry = async (db: SQLite.SQLiteDatabase): Promise<void> => {
+  try {
+    const query = "DELETE FROM pantry";
+    await db.execAsync(query);
+    console.log("All pantry items have been deleted.");
+  } catch (err) {
+    console.log("Error clearing pantry:", err);
+  }
+};
+
+export {
+  getDBConnection,
+  createTable,
+  insertPantryItem,
+  getPantry,
+  clearPantry,
+  updatePantryItem,
+};

@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { TextInput, Button, View, Image } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 import { MEASUREMENT_UNITS } from "@/constants/measurements";
 import { usePantry } from "@/hooks/usePantry";
+import CustomPicker from "@/components/CustomPicker";
+import PantryCard from "@/components/PantryItemCard";
+import ConfirmationButton from "@/components/ConfirmationButton";
+import PantryList from "@/components/PantryList";
+import { PantryItem } from "@/types/pantryItem";
+import PantryButtons from "@/components/PantryButtons";
 
 export default function Pantry() {
   const [newItem, setNewItem] = useState<string>("");
@@ -13,7 +18,18 @@ export default function Pantry() {
   const [selectedUnit, setSelectedUnit] = useState<MEASUREMENT_UNITS>(
     MEASUREMENT_UNITS.OZ,
   );
-  const { pantry, handleInsertPantryItem } = usePantry();
+  const [selectedEditedPantryItem, setSelectedEditedPantryItem] =
+    useState<PantryItem | null>(null);
+  const {
+    pantry,
+    handleInsertPantryItem,
+    handleClearPantry,
+    handleUpdatePantryItem,
+  } = usePantry();
+
+  const sortedPantry = useMemo(() => {
+    return pantry.sort((a, b) => (a.name < b.name ? -1 : 1));
+  }, [pantry]);
 
   const addPantryItem = async () => {
     if (newItem.trim() === "" || newQuantity.trim() === "") {
@@ -63,53 +79,56 @@ export default function Pantry() {
             <TextInput
               className="flex-1 border border-gray-300 rounded-md p-2 bg-white h-12"
               placeholder="Enter quantity"
+              keyboardType="numeric"
               placeholderTextColor={"gray"}
               value={newQuantity}
               onChangeText={setNewQuantity}
             />
-            <View className="flex-1 border border-gray-300 rounded-md bg-white h-20 justify-center overflow-hidden">
-              <Picker
-                selectedValue={selectedUnit}
-                onValueChange={(itemValue) => setSelectedUnit(itemValue)}
-              >
-                <Picker.Item
-                  label={MEASUREMENT_UNITS.OZ}
-                  value={MEASUREMENT_UNITS.OZ}
-                  color="gray"
-                />
-                <Picker.Item
-                  label={MEASUREMENT_UNITS.CUPS}
-                  value={MEASUREMENT_UNITS.CUPS}
-                  color="gray"
-                />
-                <Picker.Item
-                  label={MEASUREMENT_UNITS.GRAMS}
-                  value={MEASUREMENT_UNITS.GRAMS}
-                  color="gray"
-                />
-                <Picker.Item
-                  label={MEASUREMENT_UNITS.LITERS}
-                  value={MEASUREMENT_UNITS.LITERS}
-                  color="gray"
-                />
-                <Picker.Item
-                  label={MEASUREMENT_UNITS.COUNT}
-                  value={MEASUREMENT_UNITS.COUNT}
-                  color="gray"
-                />
-              </Picker>
-            </View>
+            <CustomPicker
+              selectedValue={selectedUnit}
+              handleSetSelectedValue={setSelectedUnit}
+              enumType={MEASUREMENT_UNITS}
+            />
           </View>
-          <Button title="Add Item" onPress={addPantryItem} />
+          <PantryButtons
+            onAdd={addPantryItem}
+            onClear={handleClearPantry}
+            onCancel={() => {
+              setSelectedEditedPantryItem(null);
+              setNewItem("");
+              setNewQuantity("");
+              setSelectedUnit(MEASUREMENT_UNITS.OZ);
+            }}
+            onUpdate={async () => {
+              if (!selectedEditedPantryItem) {
+                return;
+              }
+              console.log("UPDATING PANTRY ITEM ", selectedEditedPantryItem.id);
+              await handleUpdatePantryItem(
+                selectedEditedPantryItem.id,
+                newItem,
+                Number(newQuantity),
+                selectedUnit,
+              );
+              setSelectedEditedPantryItem(null);
+              setNewItem("");
+              setNewQuantity("");
+              setSelectedUnit(MEASUREMENT_UNITS.OZ);
+            }}
+            mode={Boolean(selectedEditedPantryItem) ? "editing" : "inserting"}
+          />
         </View>
       </View>
-      <ThemedView>
-        {pantry.map((item) => (
-          <ThemedText key={item.id}>
-            {item.name} - {item.quantity} {item.unit}
-          </ThemedText>
-        ))}
-      </ThemedView>
+      <PantryList
+        pantry={sortedPantry}
+        handleSetSelectedEditedPantryItem={(item) => {
+          setSelectedEditedPantryItem(item);
+          setNewItem(item.name);
+          setNewQuantity(item.quantity.toString());
+          setSelectedUnit(item.unit);
+        }}
+        selectedEditedPantryItem={selectedEditedPantryItem}
+      />
     </ParallaxScrollView>
   );
 }

@@ -1,10 +1,12 @@
 import { MEASUREMENT_UNITS } from "@/constants/measurements";
 import { PantryItem } from "@/types/pantryItem";
 import {
+  clearPantry,
   createTable,
   getDBConnection,
   getPantry,
   insertPantryItem,
+  updatePantryItem,
 } from "@/utils/Database";
 import { useEffect, useState } from "react";
 
@@ -21,11 +23,29 @@ export const usePantry = () => {
     await handleGetPantry();
   };
 
+  const handleUpdatePantryItem = async (
+    id: number,
+    name: string,
+    quantity: number,
+    unit: MEASUREMENT_UNITS,
+  ) => {
+    const db = await getDBConnection();
+    await updatePantryItem(db, id, name, quantity, unit);
+    console.log("Pantry Item inserted");
+    await handleGetPantry();
+  };
+
   const handleGetPantry = async () => {
     const db = await getDBConnection();
     const pantryItem: PantryItem[] = await getPantry(db);
     console.log("Pantry items:", pantryItem);
     setPantry(pantryItem); // Set the fetched data to the state
+  };
+
+  const handleClearPantry = async () => {
+    const db = await getDBConnection();
+    await clearPantry(db);
+    await handleGetPantry();
   };
 
   useEffect(() => {
@@ -43,5 +63,7 @@ export const usePantry = () => {
   return {
     pantry,
     handleInsertPantryItem,
+    handleClearPantry,
+    handleUpdatePantryItem,
   };
 };
