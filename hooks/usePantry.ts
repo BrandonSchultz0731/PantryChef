@@ -2,7 +2,7 @@ import { MEASUREMENT_UNITS } from "@/constants/measurements";
 import { PantryItem } from "@/types/pantryItem";
 import {
   clearPantry,
-  createTable,
+  createPantryTable,
   getDBConnection,
   getPantry,
   insertPantryItem,
@@ -53,7 +53,7 @@ export const usePantry = () => {
       console.log("GETTING CONNECTION");
       const db = await getDBConnection();
       console.log("CREATING TABLE");
-      createTable(db);
+      createPantryTable(db);
       console.log("DONE!!!");
       await handleGetPantry();
     };

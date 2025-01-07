@@ -9,6 +9,7 @@ import CustomPicker from "@/components/CustomPicker";
 import PantryList from "@/components/PantryList";
 import { PantryItem } from "@/types/pantryItem";
 import PantryButtons from "@/components/PantryButtons";
+import AddIngredient from "@/components/AddIngredient";
 
 export default function Pantry() {
   const [newItem, setNewItem] = useState<string>("");
@@ -69,32 +70,19 @@ export default function Pantry() {
           <ThemedText type="title">Pantry</ThemedText>
         </ThemedView>
         <ThemedText className="text-base leading-6">
-          Manage your pantry by adding ingredients here.
+          Manage your pantry by adding ingredients here. Press and hold on an
+          ingredient to edit.
         </ThemedText>
 
         <View className="my-5 px-4">
-          <TextInput
-            className="border border-gray-300 rounded-md p-2 mb-4 bg-white"
-            placeholder="Add a pantry item"
-            placeholderTextColor={"gray"}
-            value={newItem}
-            onChangeText={setNewItem}
+          <AddIngredient
+            newItem={newItem}
+            newQuantity={newQuantity}
+            selectedUnit={selectedUnit}
+            setNewItem={setNewItem}
+            setNewQuantity={setNewQuantity}
+            setSelectedUnit={setSelectedUnit}
           />
-          <View className="flex-row gap-2 items-center mb-4">
-            <TextInput
-              className="flex-1 border border-gray-300 rounded-md p-2 bg-white h-12"
-              placeholder="Enter quantity"
-              keyboardType="numeric"
-              placeholderTextColor={"gray"}
-              value={newQuantity}
-              onChangeText={setNewQuantity}
-            />
-            <CustomPicker
-              selectedValue={selectedUnit}
-              handleSetSelectedValue={setSelectedUnit}
-              enumType={MEASUREMENT_UNITS}
-            />
-          </View>
           <PantryButtons
             onAdd={addPantryItem}
             onClear={handleClearPantry}

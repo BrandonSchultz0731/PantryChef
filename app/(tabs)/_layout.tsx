@@ -46,6 +46,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="cookbook"
+        options={{
+          title: "Cookbook",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="chef-hat" size={24} color={"grey"} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

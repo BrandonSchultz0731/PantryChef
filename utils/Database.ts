@@ -1,4 +1,5 @@
 import { MEASUREMENT_UNITS } from "@/constants/measurements";
+import { CookbookIngredients, CookbookItem } from "@/types/cookbookItem";
 import { PantryItem } from "@/types/pantryItem";
 import * as SQLite from "expo-sqlite";
 
@@ -16,10 +17,10 @@ export interface PantrySchema {
   unit: MEASUREMENT_UNITS;
 }
 
-const createTable = async (db: SQLite.SQLiteDatabase): Promise<void> => {
+const createPantryTable = async (db: SQLite.SQLiteDatabase): Promise<void> => {
   console.log("DB: ", db);
   try {
-    const query = `
+    const pantryQuery = `
       CREATE TABLE IF NOT EXISTS pantry (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
@@ -27,7 +28,27 @@ const createTable = async (db: SQLite.SQLiteDatabase): Promise<void> => {
         unit TEXT
       );
     `;
-    await db.execAsync(query);
+    await db.execAsync(pantryQuery);
+  } catch (err) {
+    console.log("ERR: ", err);
+  }
+};
+const createCoookbookTable = async (
+  db: SQLite.SQLiteDatabase,
+): Promise<void> => {
+  console.log("DB: ", db);
+  try {
+    const cookbookQuery = `
+      CREATE TABLE IF NOT EXISTS cookbook (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        recipe_name TEXT,
+        ingredients JSON NOT NULL,
+        prep_time INTEGER,
+        cook_time INTEGER,
+        instructions TEXT
+      );
+    `;
+    await db.execAsync(cookbookQuery);
   } catch (err) {
     console.log("ERR: ", err);
   }
@@ -41,6 +62,26 @@ const insertPantryItem = async (
 ): Promise<void> => {
   const query = "INSERT INTO pantry (name, quantity, unit) VALUES (?, ?, ?)";
   await db.runAsync(query, name, quantity, unit);
+};
+const insertCookbookItem = async (
+  db: SQLite.SQLiteDatabase,
+  recipeName: string,
+  ingredients: CookbookIngredients,
+  prep_time: number,
+  cook_time: number,
+  instructions: string,
+): Promise<void> => {
+  const query =
+    "INSERT INTO cookbook (recipe_name, ingredients, prep_time, cook_time, instructions) VALUES (?, ?, ?, ?, ?)";
+  const ingredientsString = JSON.stringify(ingredients);
+  await db.runAsync(
+    query,
+    recipeName,
+    ingredientsString,
+    prep_time,
+    cook_time,
+    instructions,
+  );
 };
 
 const updatePantryItem = async (
@@ -61,6 +102,14 @@ const getPantry = async (db: SQLite.SQLiteDatabase): Promise<PantryItem[]> => {
   return result;
 };
 
+const getCookbook = async (
+  db: SQLite.SQLiteDatabase,
+): Promise<CookbookItem[]> => {
+  const query = "SELECT * FROM cookbook";
+  const result: CookbookItem[] = await db.getAllAsync(query);
+  return result;
+};
+
 const clearPantry = async (db: SQLite.SQLiteDatabase): Promise<void> => {
   try {
     const query = "DELETE FROM pantry";
@@ -71,11 +120,25 @@ const clearPantry = async (db: SQLite.SQLiteDatabase): Promise<void> => {
   }
 };
 
+const dropCookbook = async (db: SQLite.SQLiteDatabase): Promise<void> => {
+  try {
+    const query = "DROP TABLE cookbook";
+    await db.execAsync(query);
+    console.log("Cookbook Dropped");
+  } catch (err) {
+    console.log("Error dropping cookbook", err);
+  }
+};
+
 export {
   getDBConnection,
-  createTable,
+  createCoookbookTable,
+  createPantryTable,
   insertPantryItem,
+  insertCookbookItem,
   getPantry,
+  getCookbook,
   clearPantry,
   updatePantryItem,
+  dropCookbook,
 };
