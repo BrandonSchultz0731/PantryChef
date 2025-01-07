@@ -1,7 +1,8 @@
 import { MEASUREMENT_UNITS } from "@/constants/measurements";
 import { useState } from "react";
-import { TextInput, View } from "react-native";
+import { View } from "react-native";
 import CustomPicker from "./CustomPicker";
+import ThemedTextInput from "./ThemedTextInput";
 
 interface AddIngredientProps {
   newItem: string;
@@ -10,28 +11,29 @@ interface AddIngredientProps {
   setNewItem: React.Dispatch<React.SetStateAction<string>>;
   setNewQuantity: React.Dispatch<React.SetStateAction<string>>;
   setSelectedUnit: React.Dispatch<React.SetStateAction<MEASUREMENT_UNITS>>;
+  placeholder?: string;
 }
 
 export default function AddIngredient({
   newItem,
   newQuantity,
   selectedUnit,
+  placeholder = "Add a pantry item",
   setNewItem,
   setNewQuantity,
   setSelectedUnit,
 }: AddIngredientProps) {
   return (
     <View className="py-5">
-      <TextInput
-        className="border border-gray-300 rounded-md p-2 mb-4 bg-white"
-        placeholder="Add a pantry item"
+      <ThemedTextInput
+        placeholder={placeholder}
         placeholderTextColor={"gray"}
         value={newItem}
         onChangeText={setNewItem}
       />
-      <View className="flex-row gap-2 items-center mb-4">
-        <TextInput
-          className="flex-1 border border-gray-300 rounded-md p-2 bg-white h-12"
+      <View className="flex-row gap-2 mb-4">
+        <ThemedTextInput
+          className="flex-1 h-full"
           placeholder="Enter quantity"
           keyboardType="numeric"
           placeholderTextColor={"gray"}

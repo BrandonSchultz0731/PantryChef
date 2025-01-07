@@ -22,7 +22,7 @@ export default function CustomPicker<
 }: CustomPickerProps<K, E>) {
   const [isFocus, setIsFocus] = useState(false);
   return (
-    <View className="flex-1 rounded-md bg-white justify-center overflow-hidden">
+    <View className="flex-1">
       <Dropdown
         style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
         placeholderStyle={styles.placeholderStyle}
@@ -50,7 +50,7 @@ export default function CustomPicker<
         renderLeftIcon={() => (
           <FontAwesome
             style={styles.icon}
-            color={isFocus ? "blue" : "black"}
+            color="gray"
             name="balance-scale"
             size={20}
           />
@@ -66,13 +66,14 @@ const styles = StyleSheet.create({
     borderColor: "gray",
     borderWidth: 0.5,
     paddingHorizontal: 8,
+    backgroundColor: "#1f2937",
   },
   icon: {
     marginRight: 5,
   },
   label: {
     position: "absolute",
-    backgroundColor: "white",
+    backgroundColor: "red",
     left: 22,
     top: 8,
     zIndex: 999,
@@ -84,6 +85,7 @@ const styles = StyleSheet.create({
   },
   selectedTextStyle: {
     fontSize: 16,
+    color: "gray",
   },
   iconStyle: {
     width: 20,

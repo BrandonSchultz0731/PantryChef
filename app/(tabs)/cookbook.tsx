@@ -16,15 +16,24 @@ import AddIngredientButton from "@/components/ui/AddIndredientButton";
 import AddIngredient from "@/components/AddIngredient";
 import { CookbookIngredients } from "@/types/cookbookItem";
 import RecipeCard from "@/components/RecipeCard";
+import ThemedTextInput from "@/components/ThemedTextInput";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Pressable } from "react-native";
+
+type CookbookIngredient = {
+  id: number;
+  name: string;
+  quantity: string;
+  unit: MEASUREMENT_UNITS;
+};
 
 export default function Cookbook() {
   const [recipeName, setRecipeName] = useState<string>("");
   const [prepTime, setPrepTime] = useState<string>("");
   const [cookTime, setCookTime] = useState<string>("");
   const [instructions, setInstructions] = useState<string>("");
-  const [ingredients, setIngredients] = useState<
-    { id: number; name: string; quantity: string; unit: MEASUREMENT_UNITS }[]
-  >([]);
+  const [ingredients, setIngredients] = useState<CookbookIngredient[]>([]);
+  const canDeleteIngredient = ingredients.length > 1;
 
   const handleIngredientNameChange = (
     text: string,
@@ -58,17 +67,22 @@ export default function Cookbook() {
   };
   const handleIngredientUnitChange = (
     text: MEASUREMENT_UNITS,
-    ingredient: {
-      id: number;
-      name: string;
-      quantity: string;
-      unit: MEASUREMENT_UNITS;
-    },
+    ingredient: CookbookIngredient,
   ) => {
     setIngredients((prevIngredients) =>
       prevIngredients.map((ing) =>
         ingredient.id === ing.id ? { ...ing, unit: text } : ing,
       ),
+    );
+  };
+
+  const handleRemoveIngredient = (ingredient: CookbookIngredient) => {
+    console.log("CAN DELETE: ", canDeleteIngredient);
+    if (!canDeleteIngredient) {
+      return;
+    }
+    setIngredients((prevIngredients) =>
+      prevIngredients.filter((ing) => ing.id !== ingredient.id),
     );
   };
 
@@ -95,8 +109,7 @@ export default function Cookbook() {
         </ThemedText>
         <ThemedView className="py-10">
           <ThemedView className="my-5 px-4">
-            <TextInput
-              className="border border-gray-300 rounded-md p-2 mb-4 bg-white"
+            <ThemedTextInput
               placeholder="Recipe Name"
               placeholderTextColor={"gray"}
               value={recipeName}
@@ -104,24 +117,38 @@ export default function Cookbook() {
             />
           </ThemedView>
           {ingredients.map((ingredient) => (
-            <AddIngredient
-              key={ingredient.id}
-              newItem={ingredient.name}
-              newQuantity={ingredient.quantity.toString()}
-              selectedUnit={ingredient.unit}
-              setNewItem={(value) =>
-                handleIngredientNameChange(value as string, ingredient)
-              }
-              setNewQuantity={(value) =>
-                handleIngredientQuantityChange(value as string, ingredient)
-              }
-              setSelectedUnit={(value) =>
-                handleIngredientUnitChange(
-                  value as MEASUREMENT_UNITS,
-                  ingredient,
-                )
-              }
-            />
+            <ThemedView key={ingredient.id}>
+              <Pressable
+                onPress={() => {
+                  handleRemoveIngredient(ingredient);
+                }}
+                disabled={!canDeleteIngredient}
+              >
+                <MaterialCommunityIcons
+                  name="trash-can"
+                  size={24}
+                  color={`${canDeleteIngredient ? "red" : "gray"}`}
+                />
+              </Pressable>
+              <AddIngredient
+                placeholder="Ingredient Name"
+                newItem={ingredient.name}
+                newQuantity={ingredient.quantity.toString()}
+                selectedUnit={ingredient.unit}
+                setNewItem={(value) =>
+                  handleIngredientNameChange(value as string, ingredient)
+                }
+                setNewQuantity={(value) =>
+                  handleIngredientQuantityChange(value as string, ingredient)
+                }
+                setSelectedUnit={(value) =>
+                  handleIngredientUnitChange(
+                    value as MEASUREMENT_UNITS,
+                    ingredient,
+                  )
+                }
+              />
+            </ThemedView>
           ))}
           <View className="flex items-center pb-7">
             <AddIngredientButton
@@ -138,24 +165,22 @@ export default function Cookbook() {
               }}
             />
           </View>
-          <TextInput
-            className="border border-gray-300 rounded-md p-2 mb-4 bg-white"
+          <ThemedTextInput
             placeholder="Prep Time (min)"
             placeholderTextColor={"gray"}
             keyboardType="numeric"
             value={prepTime}
             onChangeText={setPrepTime}
           />
-          <TextInput
-            className="border border-gray-300 rounded-md p-2 mb-4 bg-white"
+          <ThemedTextInput
             placeholder="Cook Time (min)"
             placeholderTextColor={"gray"}
             keyboardType="numeric"
             value={cookTime}
             onChangeText={setCookTime}
           />
-          <TextInput
-            className="border border-gray-300 rounded-md p-2 mb-4 bg-white h-20"
+          <ThemedTextInput
+            className="h-20"
             placeholder="Instructions"
             placeholderTextColor={"gray"}
             value={instructions}
