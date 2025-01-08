@@ -1,10 +1,7 @@
-import { Image, StyleSheet, Platform, Text, View } from "react-native";
-
-import { HelloWave } from "@/components/HelloWave";
+import { Image } from "react-native";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import Pantry from "@/components/PantryOLD";
 import "../../global.css";
 import { Colors } from "@/constants/Colors";
 
@@ -23,12 +20,13 @@ export default function HomeScreen() {
       }
     >
       <ThemedView className="flex-1 items-center justify-center p-6">
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
+        <ThemedText type="title">PantryChef</ThemedText>
+        <ThemedText type="default">
+          Add all of your ingredients you have and see what recipes you can
+          make!
+        </ThemedText>
       </ThemedView>
-      <ThemedView className="flex-1 p-6">
-        <Pantry />
-      </ThemedView>
+      <ThemedView className="flex-1 p-6"></ThemedView>
     </ParallaxScrollView>
   );
 }

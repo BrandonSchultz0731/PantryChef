@@ -2,20 +2,21 @@ import { PantryItem } from "@/types/pantryItem";
 import { ThemedView } from "./ThemedView";
 import PantryCard from "./PantryItemCard";
 import { ThemedText } from "./ThemedText";
+import { useContext } from "react";
+import PantryChefContext from "@/app/context/pantryChefContext";
 
 interface PantryListProps {
   pantry: PantryItem[];
   selectedEditedPantryItem: PantryItem | null;
   handleSetSelectedEditedPantryItem: (item: PantryItem) => void;
-  handleDeletePantryItem: (id: number) => Promise<void>;
 }
 
 export default function PantryList({
   pantry,
   selectedEditedPantryItem,
   handleSetSelectedEditedPantryItem,
-  handleDeletePantryItem,
 }: PantryListProps) {
+  const { handleDeletePantryItem } = useContext(PantryChefContext);
   if (!pantry || pantry.length === 0) {
     return (
       <ThemedView>

@@ -1,14 +1,14 @@
-import React, { useMemo, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { View, Image } from "react-native";
 import { MEASUREMENT_UNITS } from "@/constants/measurements";
-import { usePantry } from "@/hooks/usePantry";
 import PantryList from "@/components/PantryList";
 import { PantryItem } from "@/types/pantryItem";
 import PantryButtons from "@/components/PantryButtons";
 import AddIngredient from "@/components/AddIngredient";
+import PantryChefContext from "../context/pantryChefContext";
 
 export default function Pantry() {
   const [newItem, setNewItem] = useState<string>("");
@@ -23,8 +23,7 @@ export default function Pantry() {
     handleInsertPantryItem,
     handleClearPantry,
     handleUpdatePantryItem,
-    handleDeletePantryItem,
-  } = usePantry();
+  } = useContext(PantryChefContext);
 
   const sortedPantry = useMemo(() => {
     if (!selectedEditedPantryItem) {
@@ -121,7 +120,6 @@ export default function Pantry() {
           setSelectedUnit(item.unit);
         }}
         selectedEditedPantryItem={selectedEditedPantryItem}
-        handleDeletePantryItem={handleDeletePantryItem}
       />
     </ParallaxScrollView>
   );

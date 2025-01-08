@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import {
-  TextInput,
   View,
   Image,
   Button,
@@ -12,13 +11,13 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { MEASUREMENT_UNITS } from "@/constants/measurements";
-import { useCookbook } from "@/hooks/useCookbook";
 import AddIngredientButton from "@/components/ui/AddIndredientButton";
 import AddIngredient from "@/components/AddIngredient";
 import { CookbookIngredients } from "@/types/cookbookItem";
 import RecipeCard from "@/components/RecipeCard";
 import ThemedTextInput from "@/components/ThemedTextInput";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import PantryChefContext from "../context/pantryChefContext";
 
 type CookbookIngredient = {
   id: number;
@@ -32,9 +31,15 @@ export default function Cookbook() {
   const [prepTime, setPrepTime] = useState<string>("");
   const [cookTime, setCookTime] = useState<string>("");
   const [instructions, setInstructions] = useState<string>("");
-  const [ingredients, setIngredients] = useState<CookbookIngredient[]>([]);
-  const { cookbook, handleInsertCookbookItem, handleDeleteCookbookItem } =
-    useCookbook();
+  const [ingredients, setIngredients] = useState<CookbookIngredient[]>([
+    {
+        id: Date.now(),
+        name: "",
+        quantity: "",
+        unit: MEASUREMENT_UNITS.OZ
+    }
+  ]);
+  const { cookbook, handleInsertCookbookItem } = useContext(PantryChefContext);
   const canDeleteIngredient = ingredients.length > 1;
 
   const handleIngredientNameChange = (
@@ -219,11 +224,7 @@ export default function Cookbook() {
             }}
           />
           {cookbook.map((cb) => (
-            <RecipeCard
-              key={cb.id}
-              recipe={cb}
-              handleDeleteCookbookItem={handleDeleteCookbookItem}
-            />
+            <RecipeCard key={cb.id} recipe={cb} />
           ))}
         </ThemedView>
       </ParallaxScrollView>

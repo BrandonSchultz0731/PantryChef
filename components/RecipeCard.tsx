@@ -1,20 +1,18 @@
+import PantryChefContext from "@/app/context/pantryChefContext";
 import { CookbookItem } from "@/types/cookbookItem";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useContext } from "react";
 import { View, Text, Pressable, TouchableOpacity } from "react-native";
 
 interface RecipeCardProps {
   recipe: CookbookItem;
-  handleDeleteCookbookItem: (id: number) => Promise<void>;
 }
 
-const RecipeCard: React.FC<RecipeCardProps> = ({
-  recipe,
-  handleDeleteCookbookItem,
-}) => {
+const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const { recipe_name, prep_time, cook_time } = recipe;
   const router = useRouter();
+  const { handleDeleteCookbookItem } = useContext(PantryChefContext);
 
   const handleSelectRecipe = () => {
     router.push({
