@@ -9,6 +9,7 @@ import {
   Button,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from "react-native";
 import { MEASUREMENT_UNITS } from "@/constants/measurements";
 import { useCookbook } from "@/hooks/useCookbook";
@@ -118,7 +119,7 @@ export default function Cookbook() {
           </ThemedView>
           {ingredients.map((ingredient) => (
             <ThemedView key={ingredient.id}>
-              <Pressable
+              <TouchableOpacity
                 onPress={() => {
                   handleRemoveIngredient(ingredient);
                 }}
@@ -129,7 +130,7 @@ export default function Cookbook() {
                   size={24}
                   color={`${canDeleteIngredient ? "red" : "gray"}`}
                 />
-              </Pressable>
+              </TouchableOpacity>
               <AddIngredient
                 placeholder="Ingredient Name"
                 newItem={ingredient.name}
@@ -219,12 +220,7 @@ export default function Cookbook() {
             }}
           />
           {cookbook.map((cb) => (
-            <RecipeCard
-              key={cb.id}
-              recipeName={cb.recipe_name}
-              cookTime={cb.cook_time}
-              prepTime={cb.prep_time}
-            />
+            <RecipeCard key={cb.id} recipe={cb} />
           ))}
         </ThemedView>
       </ParallaxScrollView>
