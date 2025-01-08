@@ -120,6 +120,32 @@ const clearPantry = async (db: SQLite.SQLiteDatabase): Promise<void> => {
   }
 };
 
+const deleteCookbookItem = async (
+  db: SQLite.SQLiteDatabase,
+  id: number,
+): Promise<void> => {
+  try {
+    const query = "DELETE FROM cookbook WHERE id = ?";
+    await db.runAsync(query, id);
+    console.log(`Recipe with ID ${id} deleted successfully.`);
+  } catch (err) {
+    console.error(`Error deleting recipe with ID ${id}:`, err);
+  }
+};
+
+const deletePantryItem = async (
+  db: SQLite.SQLiteDatabase,
+  id: number,
+): Promise<void> => {
+  try {
+    const query = "DELETE FROM pantry WHERE id = ?";
+    await db.runAsync(query, id);
+    console.log(`Pantry with ID ${id} deleted successfully.`);
+  } catch (err) {
+    console.error(`Error deleting pantry with ID ${id}:`, err);
+  }
+};
+
 const dropCookbook = async (db: SQLite.SQLiteDatabase): Promise<void> => {
   try {
     const query = "DROP TABLE cookbook";
@@ -141,4 +167,6 @@ export {
   clearPantry,
   updatePantryItem,
   dropCookbook,
+  deleteCookbookItem,
+  deletePantryItem,
 };

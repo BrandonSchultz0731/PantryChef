@@ -1,7 +1,6 @@
 import { PantryItem } from "@/types/pantryItem";
-import { ThemedView } from "./ThemedView";
 import { ThemedText } from "./ThemedText";
-import { Pressable, View } from "react-native";
+import { Pressable, TouchableOpacity, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -10,12 +9,14 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useEffect } from "react";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface PantryCardProps {
   item: PantryItem;
   isSelected: boolean;
   isEditing: boolean;
   handleSetSelectedEditedPantryItem: (item: PantryItem) => void;
+  handleDeletePantryItem: (id: number) => Promise<void>;
 }
 
 export default function PantryCard({
@@ -23,6 +24,7 @@ export default function PantryCard({
   isSelected,
   isEditing,
   handleSetSelectedEditedPantryItem,
+  handleDeletePantryItem,
 }: PantryCardProps) {
   const rotation = useSharedValue(0);
 
@@ -58,12 +60,23 @@ export default function PantryCard({
         style={animatedStyle}
         className={`bg-slate-800 rounded-lg p-4 mb-3 shadow-md ${showCard}`}
       >
-        <ThemedText className="text-lg font-bold text-gray-100">
-          {item.name}
-        </ThemedText>
-        <ThemedText className="text-gray-400">
-          {item.quantity} {item.unit}
-        </ThemedText>
+        <View className="flex flex-row justify-between">
+          <View>
+            <ThemedText className="text-lg font-bold text-gray-100">
+              {item.name}
+            </ThemedText>
+            <ThemedText className="text-gray-400">
+              {item.quantity} {item.unit}
+            </ThemedText>
+          </View>
+          <TouchableOpacity
+            onPress={() => {
+              handleDeletePantryItem(item.id);
+            }}
+          >
+            <MaterialCommunityIcons name="trash-can" size={32} color="red" />
+          </TouchableOpacity>
+        </View>
       </Animated.View>
     </Pressable>
   );

@@ -2,6 +2,7 @@ import { MEASUREMENT_UNITS } from "@/constants/measurements";
 import { CookbookIngredients, CookbookItem } from "@/types/cookbookItem";
 import {
   createCoookbookTable,
+  deleteCookbookItem,
   dropCookbook,
   getCookbook,
   getDBConnection,
@@ -43,6 +44,12 @@ export const useCookbook = () => {
     await dropCookbook(db);
   };
 
+  const handleDeleteCookbookItem = async (id: number) => {
+    const db = await getDBConnection();
+    await deleteCookbookItem(db, id);
+    await handleGetCookbook();
+  };
+
   useEffect(() => {
     const getDb = async () => {
       console.log("GETTING CONNECTION");
@@ -59,5 +66,6 @@ export const useCookbook = () => {
     cookbook,
     handleInsertCookbookItem,
     handleDropCookbook,
+    handleDeleteCookbookItem,
   };
 };

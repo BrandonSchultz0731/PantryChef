@@ -7,12 +7,14 @@ interface PantryListProps {
   pantry: PantryItem[];
   selectedEditedPantryItem: PantryItem | null;
   handleSetSelectedEditedPantryItem: (item: PantryItem) => void;
+  handleDeletePantryItem: (id: number) => Promise<void>;
 }
 
 export default function PantryList({
   pantry,
   selectedEditedPantryItem,
   handleSetSelectedEditedPantryItem,
+  handleDeletePantryItem,
 }: PantryListProps) {
   if (!pantry || pantry.length === 0) {
     return (
@@ -30,6 +32,7 @@ export default function PantryList({
           isSelected={selectedEditedPantryItem?.id === item.id}
           handleSetSelectedEditedPantryItem={handleSetSelectedEditedPantryItem}
           isEditing={Boolean(selectedEditedPantryItem)}
+          handleDeletePantryItem={handleDeletePantryItem}
         />
       ))}
     </ThemedView>

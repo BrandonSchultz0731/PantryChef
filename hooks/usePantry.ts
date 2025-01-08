@@ -3,6 +3,7 @@ import { PantryItem } from "@/types/pantryItem";
 import {
   clearPantry,
   createPantryTable,
+  deletePantryItem,
   getDBConnection,
   getPantry,
   insertPantryItem,
@@ -48,6 +49,12 @@ export const usePantry = () => {
     await handleGetPantry();
   };
 
+  const handleDeletePantryItem = async (id: number) => {
+    const db = await getDBConnection();
+    await deletePantryItem(db, id);
+    await handleGetPantry();
+  };
+
   useEffect(() => {
     const getDb = async () => {
       console.log("GETTING CONNECTION");
@@ -65,5 +72,6 @@ export const usePantry = () => {
     handleInsertPantryItem,
     handleClearPantry,
     handleUpdatePantryItem,
+    handleDeletePantryItem,
   };
 };

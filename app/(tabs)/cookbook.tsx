@@ -19,7 +19,6 @@ import { CookbookIngredients } from "@/types/cookbookItem";
 import RecipeCard from "@/components/RecipeCard";
 import ThemedTextInput from "@/components/ThemedTextInput";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Pressable } from "react-native";
 
 type CookbookIngredient = {
   id: number;
@@ -34,6 +33,8 @@ export default function Cookbook() {
   const [cookTime, setCookTime] = useState<string>("");
   const [instructions, setInstructions] = useState<string>("");
   const [ingredients, setIngredients] = useState<CookbookIngredient[]>([]);
+  const { cookbook, handleInsertCookbookItem, handleDeleteCookbookItem } =
+    useCookbook();
   const canDeleteIngredient = ingredients.length > 1;
 
   const handleIngredientNameChange = (
@@ -86,8 +87,6 @@ export default function Cookbook() {
       prevIngredients.filter((ing) => ing.id !== ingredient.id),
     );
   };
-
-  const { cookbook, handleInsertCookbookItem } = useCookbook();
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -220,7 +219,11 @@ export default function Cookbook() {
             }}
           />
           {cookbook.map((cb) => (
-            <RecipeCard key={cb.id} recipe={cb} />
+            <RecipeCard
+              key={cb.id}
+              recipe={cb}
+              handleDeleteCookbookItem={handleDeleteCookbookItem}
+            />
           ))}
         </ThemedView>
       </ParallaxScrollView>
