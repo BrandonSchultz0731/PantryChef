@@ -1,4 +1,3 @@
-import { MEASUREMENT_UNITS } from "@/constants/measurements";
 import { CookbookIngredients, CookbookItem } from "@/types/cookbookItem";
 import {
   createCoookbookTable,
@@ -28,14 +27,12 @@ export const useCookbook = () => {
       cook_time,
       instructions,
     );
-    console.log("Cookbook Item inserted");
     await handleGetCookbook();
   };
 
   const handleGetCookbook = async () => {
     const db = await getDBConnection();
     const cookbookItem: CookbookItem[] = await getCookbook(db);
-    console.log("Cookbook items:", cookbookItem);
     setCookbook(cookbookItem); // Set the fetched data to the state
   };
 
@@ -52,11 +49,8 @@ export const useCookbook = () => {
 
   useEffect(() => {
     const getDb = async () => {
-      console.log("GETTING CONNECTION");
       const db = await getDBConnection();
-      console.log("CREATING TABLE");
       createCoookbookTable(db);
-      console.log("DONE!!!");
       await handleGetCookbook();
     };
     getDb();

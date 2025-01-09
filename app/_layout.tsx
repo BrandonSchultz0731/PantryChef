@@ -14,6 +14,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import PantryChefContext from "./context/pantryChefContext";
 import { usePantry } from "@/hooks/usePantry";
 import { useCookbook } from "@/hooks/useCookbook";
+import { convertRecipeToObject } from "@/utils/helpers";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -47,7 +48,9 @@ export default function RootLayout() {
     <PantryChefContext.Provider
       value={{
         pantry,
-        cookbook,
+        cookbook: cookbook.map((cb) =>
+          convertRecipeToObject(JSON.stringify(cb)),
+        ),
         handleClearPantry,
         handleDeletePantryItem,
         handleInsertPantryItem,

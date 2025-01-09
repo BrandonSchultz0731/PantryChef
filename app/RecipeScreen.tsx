@@ -1,16 +1,14 @@
 import React from "react";
-import { StyleSheet, ScrollView, View, Text } from "react-native";
+import { StyleSheet, ScrollView, View } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { CookbookItem } from "@/types/cookbookItem";
 import { useLocalSearchParams } from "expo-router/build/hooks";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { convertRecipeToObject } from "@/utils/helpers";
 
 export default function RecipeScreen() {
   const { recipeString } = useLocalSearchParams<{ recipeString: string }>();
-  const recipe = JSON.parse(recipeString) as CookbookItem;
-  // For some reason i need to parse twice...
-  recipe.ingredients = JSON.parse(`${recipe.ingredients}`);
+  const recipe = convertRecipeToObject(recipeString);
 
   return (
     <SafeAreaView style={styles.safeAreaView}>
@@ -21,11 +19,22 @@ export default function RecipeScreen() {
           </ThemedText>
           <View style={styles.section}>
             <ThemedText style={styles.sectionHeader}>Ingredients</ThemedText>
-            {recipe.ingredients.map((ingredient, index) => (
-              <ThemedText key={index} style={styles.ingredientText}>
-                - {ingredient.name} ({ingredient.quantity} {ingredient.unit})
-              </ThemedText>
-            ))}
+            {recipe.ingredients.map((ingredient, index) => {
+              let color;
+              if ("matches" in recipe) {
+                color = recipe.matches.includes(ingredient.name)
+                  ? "green"
+                  : "red";
+              }
+              return (
+                <ThemedText
+                  key={index}
+                  style={{ ...styles.ingredientText, color }}
+                >
+                  - {ingredient.name} ({ingredient.quantity} {ingredient.unit})
+                </ThemedText>
+              );
+            })}
           </View>
 
           <View style={styles.section}>

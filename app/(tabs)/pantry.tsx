@@ -95,7 +95,6 @@ export default function Pantry() {
               if (!selectedEditedPantryItem) {
                 return;
               }
-              console.log("UPDATING PANTRY ITEM ", selectedEditedPantryItem.id);
               await handleUpdatePantryItem(
                 selectedEditedPantryItem.id,
                 newItem,

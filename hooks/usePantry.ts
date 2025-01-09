@@ -20,7 +20,6 @@ export const usePantry = () => {
   ) => {
     const db = await getDBConnection();
     await insertPantryItem(db, name, quantity, unit);
-    console.log("Pantry Item inserted");
     await handleGetPantry();
   };
 
@@ -32,14 +31,12 @@ export const usePantry = () => {
   ) => {
     const db = await getDBConnection();
     await updatePantryItem(db, id, name, quantity, unit);
-    console.log("Pantry Item inserted");
     await handleGetPantry();
   };
 
   const handleGetPantry = async () => {
     const db = await getDBConnection();
     const pantryItem: PantryItem[] = await getPantry(db);
-    console.log("Pantry items:", pantryItem);
     setPantry(pantryItem); // Set the fetched data to the state
   };
 
@@ -57,11 +54,8 @@ export const usePantry = () => {
 
   useEffect(() => {
     const getDb = async () => {
-      console.log("GETTING CONNECTION");
       const db = await getDBConnection();
-      console.log("CREATING TABLE");
       createPantryTable(db);
-      console.log("DONE!!!");
       await handleGetPantry();
     };
     getDb();

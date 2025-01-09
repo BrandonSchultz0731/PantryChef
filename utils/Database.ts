@@ -18,7 +18,6 @@ export interface PantrySchema {
 }
 
 const createPantryTable = async (db: SQLite.SQLiteDatabase): Promise<void> => {
-  console.log("DB: ", db);
   try {
     const pantryQuery = `
       CREATE TABLE IF NOT EXISTS pantry (
@@ -36,7 +35,6 @@ const createPantryTable = async (db: SQLite.SQLiteDatabase): Promise<void> => {
 const createCoookbookTable = async (
   db: SQLite.SQLiteDatabase,
 ): Promise<void> => {
-  console.log("DB: ", db);
   try {
     const cookbookQuery = `
       CREATE TABLE IF NOT EXISTS cookbook (
@@ -114,7 +112,6 @@ const clearPantry = async (db: SQLite.SQLiteDatabase): Promise<void> => {
   try {
     const query = "DELETE FROM pantry";
     await db.execAsync(query);
-    console.log("All pantry items have been deleted.");
   } catch (err) {
     console.log("Error clearing pantry:", err);
   }
@@ -127,7 +124,6 @@ const deleteCookbookItem = async (
   try {
     const query = "DELETE FROM cookbook WHERE id = ?";
     await db.runAsync(query, id);
-    console.log(`Recipe with ID ${id} deleted successfully.`);
   } catch (err) {
     console.error(`Error deleting recipe with ID ${id}:`, err);
   }
@@ -140,7 +136,6 @@ const deletePantryItem = async (
   try {
     const query = "DELETE FROM pantry WHERE id = ?";
     await db.runAsync(query, id);
-    console.log(`Pantry with ID ${id} deleted successfully.`);
   } catch (err) {
     console.error(`Error deleting pantry with ID ${id}:`, err);
   }
@@ -150,7 +145,6 @@ const dropCookbook = async (db: SQLite.SQLiteDatabase): Promise<void> => {
   try {
     const query = "DROP TABLE cookbook";
     await db.execAsync(query);
-    console.log("Cookbook Dropped");
   } catch (err) {
     console.log("Error dropping cookbook", err);
   }

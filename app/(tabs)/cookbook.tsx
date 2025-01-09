@@ -33,11 +33,11 @@ export default function Cookbook() {
   const [instructions, setInstructions] = useState<string>("");
   const [ingredients, setIngredients] = useState<CookbookIngredient[]>([
     {
-        id: Date.now(),
-        name: "",
-        quantity: "",
-        unit: MEASUREMENT_UNITS.OZ
-    }
+      id: Date.now(),
+      name: "",
+      quantity: "",
+      unit: MEASUREMENT_UNITS.OZ,
+    },
   ]);
   const { cookbook, handleInsertCookbookItem } = useContext(PantryChefContext);
   const canDeleteIngredient = ingredients.length > 1;
@@ -84,7 +84,6 @@ export default function Cookbook() {
   };
 
   const handleRemoveIngredient = (ingredient: CookbookIngredient) => {
-    console.log("CAN DELETE: ", canDeleteIngredient);
     if (!canDeleteIngredient) {
       return;
     }
