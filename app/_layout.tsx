@@ -27,8 +27,12 @@ export default function RootLayout() {
     handleInsertPantryItem,
     handleUpdatePantryItem,
   } = usePantry();
-  const { cookbook, handleInsertCookbookItem, handleDeleteCookbookItem } =
-    useCookbook();
+  const {
+    cookbook,
+    handleInsertCookbookItem,
+    handleDeleteCookbookItem,
+    handleUpdateCookbookItem,
+  } = useCookbook();
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
@@ -57,6 +61,7 @@ export default function RootLayout() {
         handleUpdatePantryItem,
         handleDeleteCookbookItem,
         handleInsertCookbookItem,
+        handleUpdateCookbookItem,
       }}
     >
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>

@@ -6,6 +6,7 @@ import {
   getCookbook,
   getDBConnection,
   insertCookbookItem,
+  updateCookbookItem,
 } from "@/utils/Database";
 import { useEffect, useState } from "react";
 
@@ -21,6 +22,27 @@ export const useCookbook = () => {
     const db = await getDBConnection();
     await insertCookbookItem(
       db,
+      recipeName,
+      ingredients,
+      prep_time,
+      cook_time,
+      instructions,
+    );
+    await handleGetCookbook();
+  };
+
+  const handleUpdateCookbookItem = async (
+    id: number,
+    recipeName: string,
+    ingredients: CookbookIngredients,
+    prep_time: number,
+    cook_time: number,
+    instructions: string,
+  ) => {
+    const db = await getDBConnection();
+    await updateCookbookItem(
+      db,
+      id,
       recipeName,
       ingredients,
       prep_time,
@@ -61,5 +83,6 @@ export const useCookbook = () => {
     handleInsertCookbookItem,
     handleDropCookbook,
     handleDeleteCookbookItem,
+    handleUpdateCookbookItem,
   };
 };

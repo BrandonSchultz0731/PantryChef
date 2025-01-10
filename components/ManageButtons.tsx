@@ -2,37 +2,45 @@ import { Button } from "react-native";
 import ConfirmationButton from "./ConfirmationButton";
 import { ThemedView } from "./ThemedView";
 
-interface PantryButtonsProps {
+interface ManageButtonsProps {
   mode: "editing" | "inserting";
   onCancel: () => void;
   onUpdate: () => void;
   onAdd: () => Promise<void>;
   onClear: () => Promise<void>;
+  clearTitle: string;
+  addTitle: string;
+  updateTitle: string;
+  confirmationMessage: string;
 }
 
-export default function PantryButtons({
+export default function ManageButtons({
   mode,
   onCancel,
   onAdd,
   onUpdate,
   onClear,
-}: PantryButtonsProps) {
+  clearTitle,
+  addTitle,
+  updateTitle,
+  confirmationMessage,
+}: ManageButtonsProps) {
   if (mode === "editing") {
     return (
       <ThemedView className="flex flex-row justify-between">
         <Button title="Cancel" onPress={onCancel} />
-        <Button title="Update Item" onPress={onUpdate} />
+        <Button title={updateTitle} onPress={onUpdate} />
       </ThemedView>
     );
   }
   return (
-    <ThemedView className="flex flex-row justify-between">
+    <ThemedView className="flex flex-row justify-between my-4">
       <ConfirmationButton
-        title="Clear Pantry"
+        title={clearTitle}
         onConfirm={onClear}
-        confirmationMessage="Are you sure you want to clear your pantry? This action cannot be undone."
+        confirmationMessage={confirmationMessage}
       />
-      <Button title="Add Item" onPress={onAdd} />
+      <Button title={addTitle} onPress={onAdd} />
     </ThemedView>
   );
 }

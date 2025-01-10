@@ -1,5 +1,6 @@
 import { CookbookItem } from "@/types/cookbookItem";
 import { ScoredRecipe } from "./ScoredRecipes";
+import { PantryItem } from "@/types/pantryItem";
 
 // For some reason i have to parse it twice
 export const convertRecipeToObject = (recipeString: string) => {
@@ -65,4 +66,32 @@ export const calculateSimilarity = (str1: string, str2: string) => {
 
   const distance = levenshteinDistance(normalizedStr1, normalizedStr2);
   return 1 - distance / maxLength; // Similarity score (0 to 1)
+};
+
+export const convertCookbookItemToScoredRecipe = (
+  recipe: CookbookItem,
+  pantry: PantryItem[],
+): ScoredRecipe => {
+  const ingredients = recipe.ingredients;
+  let ingredientMatches = 0;
+  const matches = [];
+  for (const ingredient of ingredients) {
+    const ingredientName = ingredient.name;
+    // check if we have the ingredient
+    let largestMatch = 0;
+    for (const pantryItem of pantry) {
+      const matchValue = calculateSimilarity(ingredientName, pantryItem.name); // 0 to 1
+      largestMatch = Math.max(largestMatch, matchValue);
+    }
+    // assume 80% means we can say we have that ingredient
+    if (largestMatch >= 0.8) {
+      ingredientMatches++;
+      matches.push(ingredient.name);
+    }
+  }
+  // we went through all of the ingredients for this recipe and now have the number of matches
+  const score = ingredientMatches / ingredients.length;
+  const scoredRecipe: ScoredRecipe = { ...recipe, score, matches };
+  return scoredRecipe;
+  // bestMatchedRecipes.addRecipe(recipeWithScore);
 };

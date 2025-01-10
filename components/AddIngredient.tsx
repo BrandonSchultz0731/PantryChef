@@ -24,7 +24,7 @@ export default function AddIngredient({
   setSelectedUnit,
 }: AddIngredientProps) {
   return (
-    <View className="py-5">
+    <View className="pt-5">
       <ThemedTextInput
         placeholder={placeholder}
         placeholderTextColor={"gray"}

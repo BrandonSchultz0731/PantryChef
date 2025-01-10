@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, ScrollView, View } from "react-native";
+import { StyleSheet, ScrollView, View, Button } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useLocalSearchParams } from "expo-router/build/hooks";
@@ -61,6 +61,7 @@ export default function RecipeScreen() {
           </View>
         </ThemedView>
       </ScrollView>
+      <Button title="Make Recipe" />
     </SafeAreaView>
   );
 }

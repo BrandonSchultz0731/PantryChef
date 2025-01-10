@@ -6,7 +6,7 @@ import { View, Image } from "react-native";
 import { MEASUREMENT_UNITS } from "@/constants/measurements";
 import PantryList from "@/components/PantryList";
 import { PantryItem } from "@/types/pantryItem";
-import PantryButtons from "@/components/PantryButtons";
+import ManageButtons from "@/components/ManageButtons";
 import AddIngredient from "@/components/AddIngredient";
 import PantryChefContext from "../context/pantryChefContext";
 
@@ -73,7 +73,7 @@ export default function Pantry() {
           ingredient to edit.
         </ThemedText>
 
-        <View className="my-5 px-4">
+        <View className="mt-3 px-4">
           <AddIngredient
             newItem={newItem}
             newQuantity={newQuantity}
@@ -82,7 +82,7 @@ export default function Pantry() {
             setNewQuantity={setNewQuantity}
             setSelectedUnit={setSelectedUnit}
           />
-          <PantryButtons
+          <ManageButtons
             onAdd={addPantryItem}
             onClear={handleClearPantry}
             onCancel={() => {
@@ -98,7 +98,7 @@ export default function Pantry() {
               await handleUpdatePantryItem(
                 selectedEditedPantryItem.id,
                 newItem,
-                Number(newQuantity),
+                parseFloat(newQuantity),
                 selectedUnit,
               );
               setSelectedEditedPantryItem(null);
@@ -107,6 +107,10 @@ export default function Pantry() {
               setSelectedUnit(MEASUREMENT_UNITS.OZ);
             }}
             mode={Boolean(selectedEditedPantryItem) ? "editing" : "inserting"}
+            confirmationMessage="Are you sure you want to clear your pantry? This action cannot be undone"
+            addTitle="Add Pantry Item"
+            clearTitle="Clear Pantry"
+            updateTitle="Update Pantry Item"
           />
         </View>
       </View>

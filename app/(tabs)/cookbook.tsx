@@ -1,11 +1,10 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import {
   View,
   Image,
-  Button,
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
@@ -13,11 +12,12 @@ import {
 import { MEASUREMENT_UNITS } from "@/constants/measurements";
 import AddIngredientButton from "@/components/ui/AddIndredientButton";
 import AddIngredient from "@/components/AddIngredient";
-import { CookbookIngredients } from "@/types/cookbookItem";
-import RecipeCard from "@/components/RecipeCard";
+import { CookbookIngredients, CookbookItem } from "@/types/cookbookItem";
 import ThemedTextInput from "@/components/ThemedTextInput";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import PantryChefContext from "../context/pantryChefContext";
+import ManageButtons from "@/components/ManageButtons";
+import CookbookList from "@/components/CookbookList";
 
 type CookbookIngredient = {
   id: number;
@@ -39,8 +39,22 @@ export default function Cookbook() {
       unit: MEASUREMENT_UNITS.OZ,
     },
   ]);
-  const { cookbook, handleInsertCookbookItem } = useContext(PantryChefContext);
+  const [selectedEditedCookbookItem, setSelectedEditedCookbookItem] =
+    useState<CookbookItem | null>(null);
+  const { handleInsertCookbookItem, handleUpdateCookbookItem, cookbook } =
+    useContext(PantryChefContext);
   const canDeleteIngredient = ingredients.length > 1;
+
+  const sortedCookbook = useMemo(() => {
+    if (!selectedEditedCookbookItem) {
+      return cookbook.sort((a, b) => (a.recipe_name < b.recipe_name ? -1 : 1));
+    }
+    // bring selected edited pantry item to top
+    const cookbookWithoutSelectedEditedItem = cookbook
+      .filter((c) => c.id !== selectedEditedCookbookItem.id)
+      .sort((a, b) => (a.recipe_name < b.recipe_name ? -1 : 1));
+    return [selectedEditedCookbookItem, ...cookbookWithoutSelectedEditedItem];
+  }, [cookbook, selectedEditedCookbookItem]);
 
   const handleIngredientNameChange = (
     text: string,
@@ -91,6 +105,7 @@ export default function Cookbook() {
       prevIngredients.filter((ing) => ing.id !== ingredient.id),
     );
   };
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -191,9 +206,8 @@ export default function Cookbook() {
             onChangeText={setInstructions}
             multiline
           />
-          <Button
-            title="Add Recipe"
-            onPress={() => {
+          <ManageButtons
+            onAdd={async () => {
               if (
                 !recipeName ||
                 ingredients.length === 0 ||
@@ -205,10 +219,10 @@ export default function Cookbook() {
               }
               const ingredientsWithoutID = ingredients.map((ing) => ({
                 name: ing.name,
-                quantity: parseInt(ing.quantity),
+                quantity: parseFloat(ing.quantity),
                 unit: ing.unit,
               })) as CookbookIngredients;
-              handleInsertCookbookItem(
+              await handleInsertCookbookItem(
                 recipeName,
                 ingredientsWithoutID,
                 parseInt(prepTime),
@@ -221,10 +235,61 @@ export default function Cookbook() {
               setPrepTime("");
               setInstructions("");
             }}
+            onClear={async () => {}}
+            onCancel={() => {
+              setSelectedEditedCookbookItem(null);
+              setRecipeName("");
+              setIngredients([]);
+              setCookTime("");
+              setPrepTime("");
+              setInstructions("");
+            }}
+            onUpdate={async () => {
+              if (!selectedEditedCookbookItem) {
+                return;
+              }
+              const mappedIngredients = ingredients.map((ing) => ({
+                ...ing,
+                quantity: parseFloat(ing.quantity),
+              }));
+              handleUpdateCookbookItem(
+                selectedEditedCookbookItem.id,
+                recipeName,
+                mappedIngredients,
+                parseInt(prepTime),
+                parseInt(cookTime),
+                instructions,
+              );
+              setSelectedEditedCookbookItem(null);
+              setRecipeName("");
+              setIngredients([]);
+              setCookTime("");
+              setPrepTime("");
+              setInstructions("");
+            }}
+            mode={Boolean(selectedEditedCookbookItem) ? "editing" : "inserting"}
+            confirmationMessage="Are you sure you want to clear your cookbook? This action cannot be undone"
+            addTitle="Add Cookbook Item"
+            clearTitle="Clear Cookbook"
+            updateTitle="Update Cookbook Item"
           />
-          {cookbook.map((cb) => (
-            <RecipeCard key={cb.id} recipe={cb} />
-          ))}
+          <CookbookList
+            cookbook={sortedCookbook}
+            handleSetSelectedEditedCookbookItem={(item) => {
+              const ingredientsWithID = item.ingredients.map((ing) => ({
+                ...ing,
+                id: Date.now(),
+                quantity: ing.quantity.toString(),
+              }));
+              setSelectedEditedCookbookItem(item);
+              setRecipeName(item.recipe_name);
+              setCookTime(item.cook_time.toString());
+              setPrepTime(item.prep_time.toString());
+              setInstructions(item.instructions);
+              setIngredients(ingredientsWithID);
+            }}
+            selectedEditedCookbookItem={selectedEditedCookbookItem}
+          />
         </ThemedView>
       </ParallaxScrollView>
     </KeyboardAvoidingView>

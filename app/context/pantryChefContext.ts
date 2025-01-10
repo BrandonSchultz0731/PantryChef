@@ -27,6 +27,14 @@ interface IPantryChefContext {
     instructions: string,
   ) => Promise<void>;
   handleDeleteCookbookItem: (id: number) => Promise<void>;
+  handleUpdateCookbookItem: (
+    id: number,
+    recipeName: string,
+    ingredients: CookbookIngredients,
+    prep_time: number,
+    cook_time: number,
+    instructions: string,
+  ) => Promise<void>;
 }
 
 const PantryChefContext = createContext<IPantryChefContext>({
@@ -38,6 +46,7 @@ const PantryChefContext = createContext<IPantryChefContext>({
   handleUpdatePantryItem: async () => {},
   handleDeleteCookbookItem: async () => {},
   handleInsertCookbookItem: async () => {},
+  handleUpdateCookbookItem: async () => {},
 });
 
 export default PantryChefContext;

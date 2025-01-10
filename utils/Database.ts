@@ -94,6 +94,29 @@ const updatePantryItem = async (
   await db.runAsync(query, name, quantity, unit, id);
 };
 
+const updateCookbookItem = async (
+  db: SQLite.SQLiteDatabase,
+  id: number,
+  recipeName: string,
+  ingredients: CookbookIngredients,
+  prep_time: number,
+  cook_time: number,
+  instructions: string,
+): Promise<void> => {
+  const query =
+    "UPDATE cookbook SET recipe_name = ?, ingredients = ?, prep_time = ?, cook_time = ?, instructions = ? WHERE id = ?";
+  const ingredientsString = JSON.stringify(ingredients);
+  await db.runAsync(
+    query,
+    recipeName,
+    ingredientsString,
+    prep_time,
+    cook_time,
+    instructions,
+    id,
+  );
+};
+
 const getPantry = async (db: SQLite.SQLiteDatabase): Promise<PantryItem[]> => {
   const query = "SELECT * FROM pantry";
   const result: PantryItem[] = await db.getAllAsync(query);
@@ -160,6 +183,7 @@ export {
   getCookbook,
   clearPantry,
   updatePantryItem,
+  updateCookbookItem,
   dropCookbook,
   deleteCookbookItem,
   deletePantryItem,
