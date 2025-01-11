@@ -46,11 +46,11 @@ export default function RecipeScreen() {
         continue;
       }
       // we found the pantry item and cookbook ingredient
-      const newQuantity =
-        calculateQuantityDifference(
-          pantryItemFromIngredientName,
-          cookbookIngredient,
-        ) * multiplier;
+      const newQuantity = calculateQuantityDifference(
+        pantryItemFromIngredientName,
+        cookbookIngredient,
+        multiplier,
+      );
       await handleUpdatePantryItem(
         pantryItemFromIngredientName.id,
         pantryItemFromIngredientName.name,

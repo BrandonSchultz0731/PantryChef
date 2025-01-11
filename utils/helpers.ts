@@ -116,6 +116,7 @@ function convertQuantity(
 export function calculateQuantityDifference(
   pantryItem: PantryItem,
   cookbookIngredient: CookbookIngredient,
+  multiplier: number,
 ): number {
   if (pantryItem.unit !== cookbookIngredient.unit) {
     try {
@@ -124,12 +125,12 @@ export function calculateQuantityDifference(
         pantryItem.unit,
         cookbookIngredient.unit,
       );
-      const diff = convertedQuantity - cookbookIngredient.quantity;
+      const diff = convertedQuantity - cookbookIngredient.quantity * multiplier;
       return Number(diff.toFixed(2));
     } catch (error: any) {
       throw new Error(`Unable to calculate difference: ${error.message}`);
     }
   }
-  const diff = pantryItem.quantity - cookbookIngredient.quantity;
+  const diff = pantryItem.quantity - cookbookIngredient.quantity * multiplier;
   return Number(diff.toFixed(2));
 }
