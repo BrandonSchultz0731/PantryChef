@@ -1,6 +1,7 @@
-import { CookbookItem } from "@/types/cookbookItem";
+import { CookbookIngredient, CookbookItem } from "@/types/cookbookItem";
 import { ScoredRecipe } from "./ScoredRecipes";
 import { PantryItem } from "@/types/pantryItem";
+import { MEASUREMENT_UNITS, UNIT_CONVERSIONS } from "@/constants/measurements";
 
 // For some reason i have to parse it twice
 export const convertRecipeToObject = (recipeString: string) => {
@@ -93,5 +94,42 @@ export const convertCookbookItemToScoredRecipe = (
   const score = ingredientMatches / ingredients.length;
   const scoredRecipe: ScoredRecipe = { ...recipe, score, matches };
   return scoredRecipe;
-  // bestMatchedRecipes.addRecipe(recipeWithScore);
 };
+
+function convertQuantity(
+  quantity: number,
+  fromUnit: MEASUREMENT_UNITS,
+  toUnit: MEASUREMENT_UNITS,
+): number {
+  if (fromUnit === toUnit) return quantity;
+
+  const conversionRate = UNIT_CONVERSIONS[fromUnit]?.[toUnit];
+  if (conversionRate === undefined) {
+    throw new Error(
+      `Conversion from ${fromUnit} to ${toUnit} is not supported.`,
+    );
+  }
+
+  return quantity * conversionRate;
+}
+
+export function calculateQuantityDifference(
+  pantryItem: PantryItem,
+  cookbookIngredient: CookbookIngredient,
+): number {
+  if (pantryItem.unit !== cookbookIngredient.unit) {
+    try {
+      const convertedQuantity = convertQuantity(
+        pantryItem.quantity,
+        pantryItem.unit,
+        cookbookIngredient.unit,
+      );
+      const diff = convertedQuantity - cookbookIngredient.quantity;
+      return Number(diff.toFixed(2));
+    } catch (error: any) {
+      throw new Error(`Unable to calculate difference: ${error.message}`);
+    }
+  }
+  const diff = pantryItem.quantity - cookbookIngredient.quantity;
+  return Number(diff.toFixed(2));
+}

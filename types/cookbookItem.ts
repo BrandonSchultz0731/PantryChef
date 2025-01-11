@@ -1,6 +1,8 @@
 import { PantryItem } from "./pantryItem";
 
-export type CookbookIngredients = Omit<PantryItem, "id">[];
+export type CookbookIngredient = Omit<PantryItem, "id">;
+
+export type CookbookIngredients = CookbookIngredient[];
 
 export type CookbookItem = {
   id: number;

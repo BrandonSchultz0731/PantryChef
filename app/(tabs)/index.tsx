@@ -6,10 +6,7 @@ import "../../global.css";
 import { Colors } from "@/constants/Colors";
 import { useContext, useState } from "react";
 import PantryChefContext from "../context/pantryChefContext";
-import {
-  calculateSimilarity,
-  convertCookbookItemToScoredRecipe,
-} from "@/utils/helpers";
+import { convertCookbookItemToScoredRecipe } from "@/utils/helpers";
 import { ScoredRecipe, ScoredRecipes } from "@/utils/ScoredRecipes";
 import FoundRecipes from "@/components/FoundRecipes";
 
@@ -38,7 +35,7 @@ export default function HomeScreen() {
       }}
       headerImage={
         <Image
-          source={require("@/assets/images/partial-react-logo.png")}
+          source={require("@/assets/images/home_image.png")}
           className="w-full h-[300] object-contain"
         />
       }

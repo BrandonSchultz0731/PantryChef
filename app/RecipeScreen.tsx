@@ -1,15 +1,65 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import { StyleSheet, ScrollView, View, Button } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useLocalSearchParams } from "expo-router/build/hooks";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { convertRecipeToObject } from "@/utils/helpers";
+import {
+  calculateQuantityDifference,
+  convertRecipeToObject,
+} from "@/utils/helpers";
+import { ScoredRecipe } from "@/utils/ScoredRecipes";
+import { MadeRecipeModal } from "@/components/MadeRecipeModal";
+import PantryChefContext from "./context/pantryChefContext";
 
 export default function RecipeScreen() {
   const { recipeString } = useLocalSearchParams<{ recipeString: string }>();
-  const recipe = convertRecipeToObject(recipeString);
-
+  const recipe = convertRecipeToObject(recipeString) as ScoredRecipe;
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const { handleUpdatePantryItem, pantry } = useContext(PantryChefContext);
+  const handleUpdatePantryQuantity = async (
+    checkedIngredients: { [x in string]: boolean },
+    multiplier: number,
+  ) => {
+    for (const ingredientName of Object.keys(checkedIngredients)) {
+      if (!checkedIngredients[ingredientName]) {
+        // skip over ingredients that weren't checked
+        continue;
+      }
+      // TODO: come up with a better way of finding a pantry item given an ingredient from a recipe
+      const pantryItemFromIngredientName = pantry.find(
+        (p) =>
+          p.name.toLowerCase().trim() === ingredientName.toLowerCase().trim(),
+      );
+      if (!pantryItemFromIngredientName) {
+        console.log(
+          `Could not find ingredient ${ingredientName} in pantry list`,
+        );
+        continue;
+      }
+      const cookbookIngredient = recipe.ingredients.find(
+        (ci) =>
+          ci.name.toLowerCase().trim() === ingredientName.toLowerCase().trim(),
+      );
+      if (!cookbookIngredient) {
+        console.log(`Could not find ingredient ${ingredientName} in recipe`);
+        continue;
+      }
+      // we found the pantry item and cookbook ingredient
+      const newQuantity =
+        calculateQuantityDifference(
+          pantryItemFromIngredientName,
+          cookbookIngredient,
+        ) * multiplier;
+      await handleUpdatePantryItem(
+        pantryItemFromIngredientName.id,
+        pantryItemFromIngredientName.name,
+        newQuantity,
+        pantryItemFromIngredientName.unit,
+      );
+    }
+    setIsModalVisible(false);
+  };
   return (
     <SafeAreaView style={styles.safeAreaView}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -20,12 +70,9 @@ export default function RecipeScreen() {
           <View style={styles.section}>
             <ThemedText style={styles.sectionHeader}>Ingredients</ThemedText>
             {recipe.ingredients.map((ingredient, index) => {
-              let color;
-              if ("matches" in recipe) {
-                color = recipe.matches.includes(ingredient.name)
-                  ? "green"
-                  : "red";
-              }
+              const color = recipe.matches.includes(ingredient.name)
+                ? "green"
+                : "red";
               return (
                 <ThemedText
                   key={index}
@@ -61,7 +108,13 @@ export default function RecipeScreen() {
           </View>
         </ThemedView>
       </ScrollView>
-      <Button title="Make Recipe" />
+      <Button onPress={() => setIsModalVisible(true)} title="Made Recipe" />
+      <MadeRecipeModal
+        scoredRecipe={recipe}
+        setIsModalVisible={setIsModalVisible}
+        isModalVisible={isModalVisible}
+        onConfirm={handleUpdatePantryQuantity}
+      />
     </SafeAreaView>
   );
 }
