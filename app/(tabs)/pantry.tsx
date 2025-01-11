@@ -68,6 +68,9 @@ export default function Pantry() {
       }
     >
       <View>
+        <ThemedText>PLAIN {process.env.TEST_API_KEY_PLAIN}</ThemedText>
+        <ThemedText>SENSITIVE {process.env.TEST_API_KEY_SENSITIVE}</ThemedText>
+        <ThemedText>SECRET {process.env.TEST_API_KEY_SECRET}</ThemedText>
         <ThemedView>
           <ThemedText type="title">Pantry</ThemedText>
         </ThemedView>
