@@ -4,6 +4,7 @@ import {
   clearPantry,
   createPantryTable,
   deletePantryItem,
+  dropPantry,
   getDBConnection,
   getPantry,
   insertPantryItem,
@@ -13,13 +14,9 @@ import { useEffect, useState } from "react";
 
 export const usePantry = () => {
   const [pantry, setPantry] = useState<PantryItem[]>([]);
-  const handleInsertPantryItem = async (
-    name: string,
-    quantity: number,
-    unit: MEASUREMENT_UNITS,
-  ) => {
+  const handleInsertPantryItem = async (pantryItem: Omit<PantryItem, "id">) => {
     const db = await getDBConnection();
-    await insertPantryItem(db, name, quantity, unit);
+    await insertPantryItem(db, pantryItem);
     await handleGetPantry();
   };
 
@@ -52,6 +49,11 @@ export const usePantry = () => {
     await handleGetPantry();
   };
 
+  const handleDropPantry = async () => {
+    const db = await getDBConnection();
+    await dropPantry(db);
+  };
+
   useEffect(() => {
     const getDb = async () => {
       const db = await getDBConnection();
@@ -67,5 +69,6 @@ export const usePantry = () => {
     handleClearPantry,
     handleUpdatePantryItem,
     handleDeletePantryItem,
+    handleDropPantry,
   };
 };

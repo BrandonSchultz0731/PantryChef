@@ -8,22 +8,34 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  Button,
 } from "react-native";
 import { MEASUREMENT_UNITS } from "@/constants/measurements";
 import AddIngredientButton from "@/components/ui/AddIndredientButton";
 import AddIngredient from "@/components/AddIngredient";
-import { CookbookIngredients, CookbookItem } from "@/types/cookbookItem";
+import {
+  CookbookIngredient,
+  CookbookIngredients,
+  CookbookItem,
+} from "@/types/cookbookItem";
 import ThemedTextInput from "@/components/ThemedTextInput";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import PantryChefContext from "../context/pantryChefContext";
 import ManageButtons from "@/components/ManageButtons";
 import CookbookList from "@/components/CookbookList";
+import { SpoontacularIngredient } from "@/types/spoontacularIngredient";
+import { fetchIngredient } from "@/api/spoontacularAPI";
+import { useMutation } from "@tanstack/react-query";
+import { Spinner } from "@/components/Spinner";
 
-type CookbookIngredient = {
-  id: number;
-  name: string;
-  quantity: string;
-  unit: MEASUREMENT_UNITS;
+const IS_DEV = __DEV__;
+
+const INITIAL_INGREDIENT: CookbookIngredient = {
+  spoontacularId: Date.now(),
+  name: "",
+  quantity: 0,
+  unit: MEASUREMENT_UNITS.OZ,
+  spoontacularName: "",
 };
 
 export default function Cookbook() {
@@ -32,17 +44,22 @@ export default function Cookbook() {
   const [cookTime, setCookTime] = useState<string>("");
   const [instructions, setInstructions] = useState<string>("");
   const [ingredients, setIngredients] = useState<CookbookIngredient[]>([
-    {
-      id: Date.now(),
-      name: "",
-      quantity: "",
-      unit: MEASUREMENT_UNITS.OZ,
-    },
+    INITIAL_INGREDIENT,
   ]);
   const [selectedEditedCookbookItem, setSelectedEditedCookbookItem] =
     useState<CookbookItem | null>(null);
-  const { handleInsertCookbookItem, handleUpdateCookbookItem, cookbook } =
-    useContext(PantryChefContext);
+  const {
+    handleInsertCookbookItem,
+    handleUpdateCookbookItem,
+    handleDropCookbook,
+    cookbook,
+  } = useContext(PantryChefContext);
+  const {
+    mutateAsync: fetchIngredientMutation,
+    isPending: isPendingFetchingIngredient,
+  } = useMutation({
+    mutationFn: fetchIngredient,
+  });
   const canDeleteIngredient = ingredients.length > 1;
 
   const sortedCookbook = useMemo(() => {
@@ -58,31 +75,25 @@ export default function Cookbook() {
 
   const handleIngredientNameChange = (
     text: string,
-    ingredient: {
-      id: number;
-      name: string;
-      quantity: string;
-      unit: MEASUREMENT_UNITS;
-    },
+    ingredient: CookbookIngredient,
   ) => {
     setIngredients((prevIngredients) =>
       prevIngredients.map((ing) =>
-        ingredient.id === ing.id ? { ...ing, name: text } : ing,
+        ingredient.spoontacularId === ing.spoontacularId
+          ? { ...ing, name: text }
+          : ing,
       ),
     );
   };
   const handleIngredientQuantityChange = (
-    text: string,
-    ingredient: {
-      id: number;
-      name: string;
-      quantity: string;
-      unit: MEASUREMENT_UNITS;
-    },
+    value: number,
+    ingredient: CookbookIngredient,
   ) => {
     setIngredients((prevIngredients) =>
       prevIngredients.map((ing) =>
-        ingredient.id === ing.id ? { ...ing, quantity: text } : ing,
+        ingredient.spoontacularId === ing.spoontacularId
+          ? { ...ing, quantity: value }
+          : ing,
       ),
     );
   };
@@ -92,7 +103,9 @@ export default function Cookbook() {
   ) => {
     setIngredients((prevIngredients) =>
       prevIngredients.map((ing) =>
-        ingredient.id === ing.id ? { ...ing, unit: text } : ing,
+        ingredient.spoontacularId === ing.spoontacularId
+          ? { ...ing, unit: text }
+          : ing,
       ),
     );
   };
@@ -102,7 +115,9 @@ export default function Cookbook() {
       return;
     }
     setIngredients((prevIngredients) =>
-      prevIngredients.filter((ing) => ing.id !== ingredient.id),
+      prevIngredients.filter(
+        (ing) => ing.spoontacularId !== ingredient.spoontacularId,
+      ),
     );
   };
 
@@ -111,6 +126,7 @@ export default function Cookbook() {
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
+      <Spinner loading={isPendingFetchingIngredient} />
       <ParallaxScrollView
         headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
         headerImage={
@@ -120,6 +136,12 @@ export default function Cookbook() {
           />
         }
       >
+        {IS_DEV && (
+          <Button
+            title="Drop Cookbook (DEV only)"
+            onPress={handleDropCookbook}
+          />
+        )}
         <ThemedView>
           <ThemedText type="title">Cookbook</ThemedText>
         </ThemedView>
@@ -136,7 +158,7 @@ export default function Cookbook() {
             />
           </ThemedView>
           {ingredients.map((ingredient) => (
-            <ThemedView key={ingredient.id}>
+            <ThemedView key={ingredient.spoontacularId}>
               <TouchableOpacity
                 onPress={() => {
                   handleRemoveIngredient(ingredient);
@@ -157,9 +179,12 @@ export default function Cookbook() {
                 setNewItem={(value) =>
                   handleIngredientNameChange(value as string, ingredient)
                 }
-                setNewQuantity={(value) =>
-                  handleIngredientQuantityChange(value as string, ingredient)
-                }
+                setNewQuantity={(value) => {
+                  const valueAsNumber = parseFloat(value as string);
+                  isNaN(valueAsNumber)
+                    ? handleIngredientQuantityChange(0, ingredient)
+                    : handleIngredientQuantityChange(valueAsNumber, ingredient);
+                }}
                 setSelectedUnit={(value) =>
                   handleIngredientUnitChange(
                     value as MEASUREMENT_UNITS,
@@ -172,15 +197,7 @@ export default function Cookbook() {
           <View className="flex items-center pb-7">
             <AddIngredientButton
               onPress={() => {
-                setIngredients((prev) => [
-                  ...prev,
-                  {
-                    id: Date.now(),
-                    name: "",
-                    quantity: "",
-                    unit: MEASUREMENT_UNITS.OZ,
-                  },
-                ]);
+                setIngredients((prev) => [...prev, INITIAL_INGREDIENT]);
               }}
             />
           </View>
@@ -217,23 +234,47 @@ export default function Cookbook() {
                 alert("Please fill out all of the information");
                 return;
               }
-              const ingredientsWithoutID = ingredients.map((ing) => ({
-                name: ing.name,
-                quantity: parseFloat(ing.quantity),
-                unit: ing.unit,
-              })) as CookbookIngredients;
-              await handleInsertCookbookItem(
-                recipeName,
-                ingredientsWithoutID,
-                parseInt(prepTime),
-                parseInt(cookTime),
-                instructions,
-              );
-              setRecipeName("");
-              setIngredients([]);
-              setCookTime("");
-              setPrepTime("");
-              setInstructions("");
+              const ingredientsWithSpoontacular: Omit<
+                SpoontacularIngredient,
+                "image"
+              >[] = [];
+              let foundAllIngredients = true;
+              for (const ingredient of ingredients) {
+                const res = await fetchIngredientMutation(ingredient.name);
+                if (res.totalResults === 0) {
+                  alert(`Ingredient ${ingredient.name} could not be found`);
+                  foundAllIngredients = false;
+                  break;
+                }
+                ingredientsWithSpoontacular.push({
+                  name: res.results[0].name,
+                  id: res.results[0].id,
+                });
+              }
+              if (
+                foundAllIngredients &&
+                ingredients.length === ingredientsWithSpoontacular.length
+              ) {
+                const mappedIngredients = ingredients.map((ing, idx) => ({
+                  name: ing.name,
+                  quantity: ing.quantity,
+                  unit: ing.unit,
+                  spoontacularId: ingredientsWithSpoontacular[idx].id,
+                  spoontacularName: ingredientsWithSpoontacular[idx].name,
+                })) as CookbookIngredients;
+                await handleInsertCookbookItem(
+                  recipeName,
+                  mappedIngredients,
+                  parseInt(prepTime),
+                  parseInt(cookTime),
+                  instructions,
+                );
+                setRecipeName("");
+                setIngredients([]);
+                setCookTime("");
+                setPrepTime("");
+                setInstructions("");
+              }
             }}
             onClear={async () => {}}
             onCancel={() => {
@@ -248,14 +289,10 @@ export default function Cookbook() {
               if (!selectedEditedCookbookItem) {
                 return;
               }
-              const mappedIngredients = ingredients.map((ing) => ({
-                ...ing,
-                quantity: parseFloat(ing.quantity),
-              }));
               handleUpdateCookbookItem(
                 selectedEditedCookbookItem.id,
                 recipeName,
-                mappedIngredients,
+                ingredients,
                 parseInt(prepTime),
                 parseInt(cookTime),
                 instructions,
@@ -276,17 +313,12 @@ export default function Cookbook() {
           <CookbookList
             cookbook={sortedCookbook}
             handleSetSelectedEditedCookbookItem={(item) => {
-              const ingredientsWithID = item.ingredients.map((ing) => ({
-                ...ing,
-                id: Date.now(),
-                quantity: ing.quantity.toString(),
-              }));
               setSelectedEditedCookbookItem(item);
               setRecipeName(item.recipe_name);
               setCookTime(item.cook_time.toString());
               setPrepTime(item.prep_time.toString());
               setInstructions(item.instructions);
-              setIngredients(ingredientsWithID);
+              setIngredients(item.ingredients);
             }}
             selectedEditedCookbookItem={selectedEditedCookbookItem}
           />

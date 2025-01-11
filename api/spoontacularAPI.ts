@@ -1,17 +1,25 @@
-const testKey1 = process.env.TEST_API_KEY_PLAIN;
-const testKey2 = process.env.TEST_API_KEY_SECRET;
-const testKey3 = process.env.TEST_API_KEY_SENSITIVE;
+import { SpoontacularIngredientResponse } from "@/types/spoontacularIngredient";
 
-console.log('testKey1: ', testKey1);
-console.log('testKey2: ', testKey2);
-console.log('testKey3: ', testKey3);
+// TODO: This is not safe, so i should change the API key if im actually gonna use this for real
+const spoontacularAPIKey = process.env.EXPO_PUBLIC_SPOONTACULAR_API_KEY;
 
-export const fetchIngredient = async (itemName: string) => {
-  const response = await fetch(
-    `https://api.example.com/grocery?name=${itemName}`
-  );
-  if (!response.ok) {
-    throw new Error('Failed to fetch the grocery item');
+export const fetchIngredient = async (
+  itemName: string,
+): Promise<SpoontacularIngredientResponse> => {
+  try {
+    const response = await fetch(
+      `https://api.spoonacular.com/food/ingredients/search?query=${itemName}&apiKey=${spoontacularAPIKey}`,
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch the grocery item");
+    }
+    return response.json() as unknown as SpoontacularIngredientResponse;
+  } catch (err) {
+    return {
+      results: [],
+      offset: -1,
+      number: -1,
+      totalResults: -1,
+    };
   }
-  return response.json();
 };

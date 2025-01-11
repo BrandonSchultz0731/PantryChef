@@ -6,11 +6,7 @@ import { createContext } from "react";
 interface IPantryChefContext {
   pantry: PantryItem[];
   cookbook: CookbookItem[];
-  handleInsertPantryItem: (
-    name: string,
-    quantity: number,
-    unit: MEASUREMENT_UNITS,
-  ) => Promise<void>;
+  handleInsertPantryItem: (pantryItem: Omit<PantryItem, "id">) => Promise<void>;
   handleClearPantry: () => Promise<void>;
   handleUpdatePantryItem: (
     id: number,
@@ -35,6 +31,8 @@ interface IPantryChefContext {
     cook_time: number,
     instructions: string,
   ) => Promise<void>;
+  handleDropPantry: () => Promise<void>;
+  handleDropCookbook: () => Promise<void>;
 }
 
 const PantryChefContext = createContext<IPantryChefContext>({
@@ -47,6 +45,8 @@ const PantryChefContext = createContext<IPantryChefContext>({
   handleDeleteCookbookItem: async () => {},
   handleInsertCookbookItem: async () => {},
   handleUpdateCookbookItem: async () => {},
+  handleDropPantry: async () => {},
+  handleDropCookbook: async () => {},
 });
 
 export default PantryChefContext;

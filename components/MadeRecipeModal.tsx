@@ -30,7 +30,7 @@ export const MadeRecipeModal = ({
 }: MadeRecipeModalProps) => {
   const [multiplier, setMultiplier] = useState(1);
   const [checkedIngredients, setCheckedIngredients] = useState<{
-    [x in string]: boolean;
+    [x in number]: boolean;
   }>({});
   return (
     <Modal
@@ -53,7 +53,7 @@ export const MadeRecipeModal = ({
             {scoredRecipe.ingredients.map((sr) => (
               <BouncyCheckbox
                 key={`${sr.name}-${sr.quantity}-${sr.unit}`}
-                isChecked={checkedIngredients[sr.name]}
+                isChecked={checkedIngredients[sr.spoontacularId]}
                 fillColor="green"
                 size={30}
                 iconStyle={{ borderColor: "green" }}
@@ -61,7 +61,7 @@ export const MadeRecipeModal = ({
                   setCheckedIngredients((prev) => {
                     return {
                       ...prev,
-                      [sr.name]: checked,
+                      [sr.spoontacularId]: checked,
                     };
                   });
                 }}

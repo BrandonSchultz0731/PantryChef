@@ -7,6 +7,7 @@ const databaseName = "PantryChefDB";
 
 const getDBConnection = async () => {
   const db = await SQLite.openDatabaseAsync(databaseName);
+  console.log("DB", db);
   return db;
 };
 
@@ -22,6 +23,8 @@ const createPantryTable = async (db: SQLite.SQLiteDatabase): Promise<void> => {
     const pantryQuery = `
       CREATE TABLE IF NOT EXISTS pantry (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        spoontacularId INTEGER,
+        spoontacularName TEXT,
         name TEXT,
         quantity INTEGER,
         unit TEXT
@@ -54,12 +57,18 @@ const createCoookbookTable = async (
 
 const insertPantryItem = async (
   db: SQLite.SQLiteDatabase,
-  name: string,
-  quantity: number,
-  unit: MEASUREMENT_UNITS,
+  pantryItem: Omit<PantryItem, "id">,
 ): Promise<void> => {
-  const query = "INSERT INTO pantry (name, quantity, unit) VALUES (?, ?, ?)";
-  await db.runAsync(query, name, quantity, unit);
+  const query =
+    "INSERT INTO pantry (name, quantity, unit, spoontacularId, spoontacularName) VALUES (?, ?, ?, ?, ?)";
+  await db.runAsync(
+    query,
+    pantryItem.name,
+    pantryItem.quantity,
+    pantryItem.unit,
+    pantryItem.spoontacularId,
+    pantryItem.spoontacularName,
+  );
 };
 const insertCookbookItem = async (
   db: SQLite.SQLiteDatabase,
@@ -173,6 +182,15 @@ const dropCookbook = async (db: SQLite.SQLiteDatabase): Promise<void> => {
   }
 };
 
+const dropPantry = async (db: SQLite.SQLiteDatabase): Promise<void> => {
+  try {
+    const query = "DROP TABLE pantry";
+    await db.execAsync(query);
+  } catch (err) {
+    console.log("Error dropping cookbook", err);
+  }
+};
+
 export {
   getDBConnection,
   createCoookbookTable,
@@ -187,4 +205,5 @@ export {
   dropCookbook,
   deleteCookbookItem,
   deletePantryItem,
+  dropPantry,
 };

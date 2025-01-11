@@ -53,6 +53,10 @@ export default function PantryCard({
     : isSelected
       ? "opacity-100"
       : "opacity-20";
+  const subTitle =
+    item.name.toLowerCase() !== item.spoontacularName.toLowerCase()
+      ? `(${item.spoontacularName})`
+      : "";
 
   return (
     <Pressable onLongPress={() => handleSetSelectedEditedPantryItem(item)}>
@@ -63,7 +67,7 @@ export default function PantryCard({
         <View className="flex flex-row justify-between">
           <View>
             <ThemedText className="text-lg font-bold text-gray-100">
-              {item.name}
+              {item.name} {subTitle}
             </ThemedText>
             <ThemedText className="text-gray-400">
               {item.quantity} {item.unit}

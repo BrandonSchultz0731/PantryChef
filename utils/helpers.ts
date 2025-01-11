@@ -2,6 +2,7 @@ import { CookbookIngredient, CookbookItem } from "@/types/cookbookItem";
 import { ScoredRecipe } from "./ScoredRecipes";
 import { PantryItem } from "@/types/pantryItem";
 import { MEASUREMENT_UNITS, UNIT_CONVERSIONS } from "@/constants/measurements";
+import { SpoontacularIngredientResponse } from "@/types/spoontacularIngredient";
 
 // For some reason i have to parse it twice
 export const convertRecipeToObject = (recipeString: string) => {
@@ -87,7 +88,7 @@ export const convertCookbookItemToScoredRecipe = (
     // assume 80% means we can say we have that ingredient
     if (largestMatch >= 0.8) {
       ingredientMatches++;
-      matches.push(ingredient.name);
+      matches.push(ingredient.spoontacularId);
     }
   }
   // we went through all of the ingredients for this recipe and now have the number of matches
@@ -134,3 +135,13 @@ export function calculateQuantityDifference(
   const diff = pantryItem.quantity - cookbookIngredient.quantity * multiplier;
   return Number(diff.toFixed(2));
 }
+
+// Spoontacular Helpers
+export const getFirstIngredient = (
+  spoontacularIngredientResponse: SpoontacularIngredientResponse,
+) => {
+  if (!spoontacularIngredientResponse?.results?.length) {
+    return null;
+  }
+  return spoontacularIngredientResponse.results[0];
+};

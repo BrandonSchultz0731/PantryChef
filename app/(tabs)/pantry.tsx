@@ -2,7 +2,7 @@ import React, { useContext, useMemo, useState } from "react";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { View, Image } from "react-native";
+import { View, Image, Button } from "react-native";
 import { MEASUREMENT_UNITS } from "@/constants/measurements";
 import PantryList from "@/components/PantryList";
 import { PantryItem } from "@/types/pantryItem";
@@ -10,7 +10,11 @@ import ManageButtons from "@/components/ManageButtons";
 import AddIngredient from "@/components/AddIngredient";
 import PantryChefContext from "../context/pantryChefContext";
 import { useMutation } from "@tanstack/react-query";
-import {} from '@/api/spoontacularAPI'
+import { fetchIngredient } from "@/api/spoontacularAPI";
+import { Spinner } from "@/components/Spinner";
+import { getFirstIngredient } from "@/utils/helpers";
+
+const IS_DEV = __DEV__;
 
 export default function Pantry() {
   const [newItem, setNewItem] = useState<string>("");
@@ -25,8 +29,14 @@ export default function Pantry() {
     handleInsertPantryItem,
     handleClearPantry,
     handleUpdatePantryItem,
+    handleDropPantry,
   } = useContext(PantryChefContext);
-  // const {} = useMutation()
+  const {
+    mutateAsync: fetchIngredientMutation,
+    isPending: isPendingFetchingIngredient,
+  } = useMutation({
+    mutationFn: fetchIngredient,
+  });
 
   const sortedPantry = useMemo(() => {
     if (!selectedEditedPantryItem) {
@@ -51,7 +61,20 @@ export default function Pantry() {
       alert("The value entered is not a number.");
       return;
     }
-    await handleInsertPantryItem(name, quantity, unit);
+    const res = await fetchIngredientMutation(name);
+    const spoontacularIngredient = getFirstIngredient(res);
+    if (!spoontacularIngredient) {
+      alert(`Ingredient ${name} not recognized`);
+      return;
+    }
+    const pantryItem: Omit<PantryItem, "id"> = {
+      name,
+      spoontacularId: spoontacularIngredient.id,
+      spoontacularName: spoontacularIngredient.name,
+      quantity,
+      unit,
+    };
+    await handleInsertPantryItem(pantryItem);
     setNewItem("");
     setNewQuantity("");
     setSelectedUnit(MEASUREMENT_UNITS.OZ);
@@ -67,10 +90,11 @@ export default function Pantry() {
         />
       }
     >
+      {IS_DEV && (
+        <Button title="Drop Pantry (DEV only) " onPress={handleDropPantry} />
+      )}
+      <Spinner loading={isPendingFetchingIngredient} />
       <View>
-        <ThemedText>PLAIN {process.env.TEST_API_KEY_PLAIN}</ThemedText>
-        <ThemedText>SENSITIVE {process.env.TEST_API_KEY_SENSITIVE}</ThemedText>
-        <ThemedText>SECRET {process.env.TEST_API_KEY_SECRET}</ThemedText>
         <ThemedView>
           <ThemedText type="title">Pantry</ThemedText>
         </ThemedView>

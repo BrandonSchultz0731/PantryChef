@@ -21,45 +21,41 @@ export default function RecipeScreen() {
     checkedIngredients: { [x in string]: boolean },
     multiplier: number,
   ) => {
-    for (const ingredientName of Object.keys(checkedIngredients)) {
-      if (!checkedIngredients[ingredientName]) {
+    for (const spoontacularId of Object.keys(checkedIngredients)) {
+      if (!checkedIngredients[spoontacularId]) {
         // skip over ingredients that weren't checked
         continue;
       }
-      // TODO: come up with a better way of finding a pantry item given an ingredient from a recipe
-      const pantryItemFromIngredientName = pantry.find(
-        (p) =>
-          p.name.toLowerCase().trim() === ingredientName.toLowerCase().trim(),
+      const pantryItemFromSpoontacularId = pantry.find(
+        (p) => p.spoontacularId.toString() == spoontacularId,
       );
-      if (!pantryItemFromIngredientName) {
-        console.log(
-          `Could not find ingredient ${ingredientName} in pantry list`,
-        );
+      if (!pantryItemFromSpoontacularId) {
+        console.log(`Could not find ingredient in pantry list`);
         continue;
       }
       const cookbookIngredient = recipe.ingredients.find(
-        (ci) =>
-          ci.name.toLowerCase().trim() === ingredientName.toLowerCase().trim(),
+        (ci) => ci.spoontacularId.toString() === spoontacularId,
       );
       if (!cookbookIngredient) {
-        console.log(`Could not find ingredient ${ingredientName} in recipe`);
+        console.log(`Could not find ingredient in recipe`);
         continue;
       }
       // we found the pantry item and cookbook ingredient
       const newQuantity = calculateQuantityDifference(
-        pantryItemFromIngredientName,
+        pantryItemFromSpoontacularId,
         cookbookIngredient,
         multiplier,
       );
       await handleUpdatePantryItem(
-        pantryItemFromIngredientName.id,
-        pantryItemFromIngredientName.name,
+        pantryItemFromSpoontacularId.id,
+        pantryItemFromSpoontacularId.name,
         newQuantity,
-        pantryItemFromIngredientName.unit,
+        pantryItemFromSpoontacularId.unit,
       );
     }
     setIsModalVisible(false);
   };
+
   return (
     <SafeAreaView style={styles.safeAreaView}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -70,7 +66,13 @@ export default function RecipeScreen() {
           <View style={styles.section}>
             <ThemedText style={styles.sectionHeader}>Ingredients</ThemedText>
             {recipe.ingredients.map((ingredient, index) => {
-              const color = recipe.matches.includes(ingredient.name)
+              const subTitle =
+                ingredient.name.toLowerCase() !==
+                ingredient.spoontacularName.toLowerCase()
+                  ? `(${ingredient.spoontacularName})`
+                  : "";
+              // TODO: Modify this so that it also checks if we have enough of the ingredient
+              const color = recipe.matches.includes(ingredient.spoontacularId)
                 ? "green"
                 : "red";
               return (
@@ -78,7 +80,8 @@ export default function RecipeScreen() {
                   key={index}
                   style={{ ...styles.ingredientText, color }}
                 >
-                  - {ingredient.name} ({ingredient.quantity} {ingredient.unit})
+                  - {ingredient.name} {subTitle} ({ingredient.quantity}{" "}
+                  {ingredient.unit})
                 </ThemedText>
               );
             })}

@@ -1,6 +1,6 @@
 import { CookbookItem } from "@/types/cookbookItem";
 
-export type ScoredRecipe = CookbookItem & { score: number; matches: string[] };
+export type ScoredRecipe = CookbookItem & { score: number; matches: number[] };
 export type RecipesWithScore = ScoredRecipe[];
 
 export class ScoredRecipes {

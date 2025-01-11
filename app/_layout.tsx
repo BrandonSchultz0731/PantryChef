@@ -15,9 +15,12 @@ import PantryChefContext from "./context/pantryChefContext";
 import { usePantry } from "@/hooks/usePantry";
 import { useCookbook } from "@/hooks/useCookbook";
 import { convertRecipeToObject } from "@/utils/helpers";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const {
@@ -26,12 +29,14 @@ export default function RootLayout() {
     handleDeletePantryItem,
     handleInsertPantryItem,
     handleUpdatePantryItem,
+    handleDropPantry,
   } = usePantry();
   const {
     cookbook,
     handleInsertCookbookItem,
     handleDeleteCookbookItem,
     handleUpdateCookbookItem,
+    handleDropCookbook,
   } = useCookbook();
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
@@ -49,32 +54,38 @@ export default function RootLayout() {
   }
 
   return (
-    <PantryChefContext.Provider
-      value={{
-        pantry,
-        cookbook: cookbook.map((cb) =>
-          convertRecipeToObject(JSON.stringify(cb)),
-        ),
-        handleClearPantry,
-        handleDeletePantryItem,
-        handleInsertPantryItem,
-        handleUpdatePantryItem,
-        handleDeleteCookbookItem,
-        handleInsertCookbookItem,
-        handleUpdateCookbookItem,
-      }}
-    >
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen
-            name="(tabs)"
-            options={{ headerShown: false, title: "Back" }}
-          />
-          <Stack.Screen name="RecipeScreen" />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    </PantryChefContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <PantryChefContext.Provider
+        value={{
+          pantry,
+          cookbook: cookbook.map((cb) =>
+            convertRecipeToObject(JSON.stringify(cb)),
+          ),
+          handleClearPantry,
+          handleDeletePantryItem,
+          handleInsertPantryItem,
+          handleUpdatePantryItem,
+          handleDeleteCookbookItem,
+          handleInsertCookbookItem,
+          handleUpdateCookbookItem,
+          handleDropPantry,
+          handleDropCookbook,
+        }}
+      >
+        <ThemeProvider
+          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        >
+          <Stack>
+            <Stack.Screen
+              name="(tabs)"
+              options={{ headerShown: false, title: "Back" }}
+            />
+            <Stack.Screen name="RecipeScreen" />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </PantryChefContext.Provider>
+    </QueryClientProvider>
   );
 }
