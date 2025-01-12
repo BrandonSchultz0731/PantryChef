@@ -30,12 +30,14 @@ import { Spinner } from "@/components/Spinner";
 
 const IS_DEV = __DEV__;
 
-const INITIAL_INGREDIENT: CookbookIngredient = {
-  spoontacularId: Date.now(),
-  name: "",
-  quantity: 0,
-  unit: MEASUREMENT_UNITS.OZ,
-  spoontacularName: "",
+const INITIAL_INGREDIENT = () => {
+  return {
+    spoontacularId: Date.now(),
+    name: "",
+    quantity: 0,
+    unit: MEASUREMENT_UNITS.OZ,
+    spoontacularName: "",
+  };
 };
 
 export default function Cookbook() {
@@ -44,7 +46,7 @@ export default function Cookbook() {
   const [cookTime, setCookTime] = useState<string>("");
   const [instructions, setInstructions] = useState<string>("");
   const [ingredients, setIngredients] = useState<CookbookIngredient[]>([
-    INITIAL_INGREDIENT,
+    INITIAL_INGREDIENT(),
   ]);
   const [selectedEditedCookbookItem, setSelectedEditedCookbookItem] =
     useState<CookbookItem | null>(null);
@@ -197,7 +199,7 @@ export default function Cookbook() {
           <View className="flex items-center pb-7">
             <AddIngredientButton
               onPress={() => {
-                setIngredients((prev) => [...prev, INITIAL_INGREDIENT]);
+                setIngredients((prev) => [...prev, INITIAL_INGREDIENT()]);
               }}
             />
           </View>

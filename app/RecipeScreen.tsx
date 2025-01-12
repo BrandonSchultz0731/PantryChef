@@ -71,10 +71,24 @@ export default function RecipeScreen() {
                 ingredient.spoontacularName.toLowerCase()
                   ? `(${ingredient.spoontacularName})`
                   : "";
-              // TODO: Modify this so that it also checks if we have enough of the ingredient
-              const color = recipe.matches.includes(ingredient.spoontacularId)
-                ? "green"
-                : "red";
+              const matchesId = recipe.matches.includes(
+                ingredient.spoontacularId,
+              );
+              let color: string;
+              if (matchesId) {
+                color = "green";
+              } else {
+                color = "red";
+              }
+              const pantryItem = pantry.find(
+                (p) => p.spoontacularId === ingredient.spoontacularId,
+              );
+              if (
+                pantryItem &&
+                calculateQuantityDifference(pantryItem, ingredient, 1) <= 0
+              ) {
+                color = "#d6d02b";
+              }
               return (
                 <ThemedText
                   key={index}

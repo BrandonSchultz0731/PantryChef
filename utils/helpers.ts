@@ -81,12 +81,14 @@ export const convertCookbookItemToScoredRecipe = (
     const ingredientName = ingredient.name;
     // check if we have the ingredient
     let largestMatch = 0;
-    for (const pantryItem of pantry) {
-      const matchValue = calculateSimilarity(ingredientName, pantryItem.name); // 0 to 1
-      largestMatch = Math.max(largestMatch, matchValue);
-    }
-    // assume 80% means we can say we have that ingredient
-    if (largestMatch >= 0.8) {
+    // for (const pantryItem of pantry) {
+    //   const matchValue = calculateSimilarity(ingredientName, pantryItem.name); // 0 to 1
+    //   largestMatch = Math.max(largestMatch, matchValue);
+    // }
+    const hasMatch = pantry.find(
+      (p) => p.spoontacularId === ingredient.spoontacularId,
+    );
+    if (hasMatch) {
       ingredientMatches++;
       matches.push(ingredient.spoontacularId);
     }
